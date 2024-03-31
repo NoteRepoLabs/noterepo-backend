@@ -12,3 +12,47 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id         Int      @id @default(autoincrement())
+  username   String?  @unique @default("Anonymous")
+  email      String   @unique
+  password   String
+  isVerified Boolean  @default(false)
+  role       Role     @default(USER)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Repo       Repo[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Repo {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  isPublic    Boolean  @default(false)
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tag         Tag?
+  Note        Note[]
+}
+
+model Note {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  repo        Repo   @relation(fields: [repoId], references: [id])
+  repoId      Int
+}
+
+model Tag {
+  tags   String[]
+  repo   Repo     @relation(fields: [repoId], references: [id])
+  repoId Int      @unique
+}
