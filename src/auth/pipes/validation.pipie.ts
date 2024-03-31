@@ -14,7 +14,10 @@ export class AuthValidationPipe implements PipeTransform {
     const { error } = this.schema.validate(value);
 
     if (error) {
-      throw new BadRequestException('Invalid Body', error.message);
+      throw new BadRequestException(
+        'Invalid Body',
+        error.message.replace(/"/g, ''),
+      );
     }
 
     return value;
