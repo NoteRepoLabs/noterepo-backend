@@ -10,11 +10,7 @@ export class AuthService {
 
   private logger = new Logger('Authentication Service');
 
-  async signUp(body: SignUpDto) {
-    const { email, password } = body;
-
-    console.log(password);
-
+  async signUp({ email, password }: SignUpDto) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (user) {
