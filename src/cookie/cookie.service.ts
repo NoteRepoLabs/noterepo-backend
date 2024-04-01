@@ -4,7 +4,7 @@ import { FastifyReply } from 'fastify';
 @Injectable()
 export class CookieService {
   sendCookie(value: string, res: FastifyReply) {
-    return res.cookie('noterepo_auth_token', value, {
+    return res.cookie('noterepo.auth.token', value, {
       httpOnly: true,
       sameSite: 'none',
       secure: process.env.NODE_ENV === 'development' ? false : true,
