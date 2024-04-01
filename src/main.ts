@@ -37,7 +37,9 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  await app.listen(process.env.PORT);
+  const HOST = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';
+
+  await app.listen(process.env.PORT, HOST);
 }
 bootstrap();
 
