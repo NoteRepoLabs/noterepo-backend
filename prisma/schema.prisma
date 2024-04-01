@@ -14,8 +14,8 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  username   String?  @unique @default("Anonymous")
+  id         String   @id @default(uuid())
+  username   String?  @unique
   email      String   @unique
   password   String
   isVerified Boolean  @default(false)
@@ -31,12 +31,12 @@ enum Role {
 }
 
 model Repo {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid())
   name        String
   description String
   isPublic    Boolean  @default(false)
   user        User     @relation(fields: [userId], references: [id])
-  userId      Int
+  userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   tag         Tag?
@@ -44,15 +44,15 @@ model Repo {
 }
 
 model Note {
-  id          Int    @id @default(autoincrement())
+  id          String @id @default(uuid())
   name        String
   description String
   repo        Repo   @relation(fields: [repoId], references: [id])
-  repoId      Int
+  repoId      String
 }
 
 model Tag {
   tags   String[]
   repo   Repo     @relation(fields: [repoId], references: [id])
-  repoId Int      @unique
+  repoId String   @unique
 }
