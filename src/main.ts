@@ -7,15 +7,19 @@ import { AppModule } from './app.module';
 import {
   ClassSerializerInterceptor,
   INestApplication,
+  Logger,
   VersioningType,
 } from '@nestjs/common';
 
 import fastifyCookie from '@fastify/cookie';
+import { ResponseInterceptor } from './response/response.interceptor';
+// import * as morgan from 'morgan';
+import { logger } from './utils/requestLogger/request.logger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: true }),
+    new FastifyAdapter({ ignoreTrailingSlash: true }),
   );
 
   //Needed for response dtos to function
@@ -29,6 +33,9 @@ async function bootstrap() {
     },
   });
 
+  //For request logging
+  app.use(logger());
+
   //Add api prefix to all endpoints
   app.setGlobalPrefix('api');
 
@@ -41,8 +48,14 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT, HOST);
 }
-bootstrap();
+
+bootstrap().then(() => {
+  new Logger('Server').log('Server listening');
+});
 
 export function registerGlobals(app: INestApplication) {
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new ResponseInterceptor(),
+  );
 }
