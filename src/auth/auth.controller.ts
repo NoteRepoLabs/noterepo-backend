@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Version, UsePipes, Res } from '@nestjs/common';
+import { Controller, Post, Body, Version, UsePipes, Res, Param, ParseUUIDPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, signUpSchema } from './dto/sign-up.dto';
 //import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -7,6 +7,7 @@ import { SignInDto, signInSchema } from './dto/sign-in.dto';
 import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
+
 
 @Controller('auth')
 export class AuthController {
@@ -35,5 +36,11 @@ export class AuthController {
 
     /**  Maps response dto to response from the service, thereby excluding fields from dto **/
     return plainToInstance(AuthResponseDto, response);
+  }
+
+  @Post('verifyAccount')
+  @Version('1')
+  async verifyAccount(@Param(ParseUUIDPipe) id: string ){
+    return this.authService.verifyAccount(id)
   }
 }
