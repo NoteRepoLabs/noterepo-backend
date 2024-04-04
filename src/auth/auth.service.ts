@@ -57,7 +57,7 @@ export class AuthService {
 
     // If user not found
     if (!user) {
-      throw new NotFoundException('email or password not correct');
+      throw new NotFoundException('User not found');
     }
 
     //Check if user account is verified
@@ -80,7 +80,23 @@ export class AuthService {
 
     this.logger.log('User signed in successfully');
 
+    this.logger.log({ id: user.id });
+
     //Return user object
     return user;
+  }
+
+  //Basic Implementation. Not complete
+  async verifyAccount(id: string) {
+    const user = this.prisma.user.update({
+      where: {
+        verificationId: id,
+      },
+      data: { isVerified: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Account not found');
+    }
   }
 }
