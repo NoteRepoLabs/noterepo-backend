@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 
 import fastifyCookie from '@fastify/cookie';
-import { ResponseInterceptor } from './response/response.interceptor';
+import { ResponseInterceptor } from './utils/response/response.interceptor';
 // import * as morgan from 'morgan';
 import { logger } from './utils/requestLogger/request.logger';
 
