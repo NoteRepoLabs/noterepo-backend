@@ -48,7 +48,7 @@ export class AuthController {
     return plainToInstance(AuthResponseDto, response);
   }
 
-  @Get('verify/:id')
+  @Get('verifyAccount/:id')
   @Version('1')
   async verifyAccount(
     @Param('id', ParseUUIDPipe)
