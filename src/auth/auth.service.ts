@@ -71,9 +71,9 @@ export class AuthService {
     }
 
     //Check if user account is verified
-    // if (!user.isVerified) {
-    //   throw new UnauthorizedException('Your account is not verified');
-    // }
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Your account is not verified');
+    }
 
     const validatePassword = await bcrypt.compare(password, user.password);
 

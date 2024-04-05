@@ -18,12 +18,20 @@ import { SignInDto, signInSchema } from './dto/sign-in.dto';
 import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('sign-up')
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({
+    type: SignUpDto,
+    description: 'Json structure for user object',
+  })
   @Version('1')
   @UsePipes(new AuthValidationPipe(signUpSchema)) // Request body Validation
   async signUp(@Body() body: SignUpDto): Promise<AuthResponseDto> {
@@ -35,6 +43,14 @@ export class AuthController {
   }
 
   @Post('sign-in')
+  @ApiResponse({ status: 200, description: 'User signed in successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'User not verified' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiBody({
+    type: SignInDto,
+    description: 'Json structure for user object',
+  })
   @Version('1')
   @UsePipes(new AuthValidationPipe(signInSchema)) // Request body Validation
   async signIn(

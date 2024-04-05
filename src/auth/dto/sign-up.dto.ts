@@ -1,9 +1,18 @@
+import { ApiProperty } from '@nestjs/swagger';
 import * as Joi from 'joi';
 
 // Request Body dto for sign-up route
 export class SignUpDto {
-    email: string
-    password: string
+  @ApiProperty({
+    example: 'example123@gmail.com',
+    required: true,
+  })
+  email: string;
+  @ApiProperty({
+    example: '123456',
+    required: true,
+  })
+  password: string;
 }
 
 // Request body schema for sign-up route
