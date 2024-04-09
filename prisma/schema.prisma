@@ -14,15 +14,16 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  username   String?  @unique
-  email      String   @unique
-  password   String
-  isVerified Boolean  @default(false)
-  role       Role     @default(USER)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  Repo       Repo[]
+  id             String   @id @default(uuid())
+  username       String?  @unique
+  email          String   @unique
+  password       String
+  isVerified     Boolean  @default(false)
+  role           Role     @default(USER)
+  verificationId String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  Repo           Repo[]
 }
 
 enum Role {
