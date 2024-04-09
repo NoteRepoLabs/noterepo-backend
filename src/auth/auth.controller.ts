@@ -71,6 +71,11 @@ export class AuthController {
     id: string,
   ) {
     return this.authService.verifyAccount(id);
+  ): Promise<AuthResponseDto> {
+    //Get Response from service
+    const response = await this.authService.verifyAccount(id);
+
+    return plainToInstance(AuthResponseDto, response);
   }
 
   // For development purposes only. will be removed later
