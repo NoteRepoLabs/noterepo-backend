@@ -77,11 +77,4 @@ export class AuthController {
 
     return plainToInstance(AuthResponseDto, response);
   }
-
-  // For development purposes only. will be removed later
-  @Delete('delete')
-  @Version('1')
-  async deleteUsers() {
-    return this.authService.deleteUsers();
-  }
 }

@@ -125,10 +125,4 @@ export class AuthService {
 
     return user;
   }
-
-  async deleteUsers() {
-    await this.prisma.user.deleteMany();
-
-    return 'Deleted Successfully';
-  }
 }
