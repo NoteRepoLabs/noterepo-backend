@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtService } from './jwt/jwt.service';
 import { CookieService } from './cookie/cookie.service';
 import { EmailModule } from './email/email.module';
+import { UsersModule } from './users/users.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -30,6 +31,7 @@ import * as Joi from 'joi';
     PrismaModule,
     AuthModule,
     EmailModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtService, CookieService],
