@@ -684,6 +684,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/helmet@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "@fastify/helmet@npm:11.1.1"
+  dependencies:
+    fastify-plugin: "npm:^4.2.1"
+    helmet: "npm:^7.0.0"
+  checksum: 10c0/03d38fdb188cde84066df90e0033e29430d3db2e1e8692e4a37421034d5d162bc17492fce4c20869904adb39e0f91c082ad42fd81530d517073eaf3f50727783
+  languageName: node
+  linkType: hard
+
 "@fastify/merge-json-schemas@npm:^0.1.0":
   version: 0.1.1
   resolution: "@fastify/merge-json-schemas@npm:0.1.1"
@@ -4473,7 +4483,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify-plugin@npm:^4.0.0":
+"fastify-plugin@npm:^4.0.0, fastify-plugin@npm:^4.2.1":
   version: 4.5.1
   resolution: "fastify-plugin@npm:4.5.1"
   checksum: 10c0/f58f79cd9d3c88fd7f79a3270276c6339fc57bbe72ef14d20b73779193c404e317ac18e8eae2c5071b3909ebee45d7eb6871da4e65464ac64ed0d9746b4e9b9f
@@ -5128,7 +5138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"helmet@npm:^7.1.0":
+"helmet@npm:^7.0.0":
   version: 7.1.0
   resolution: "helmet@npm:7.1.0"
   checksum: 10c0/8c3370d07487be11ac918577c68952e05d779a1a2c037023c1ba763034c381a025899bc52f8acfab5209304a1dc618a3764dbfd26386a0d1173befe4fb932e84
@@ -7681,6 +7691,7 @@ __metadata:
   resolution: "note-repo-backend@workspace:."
   dependencies:
     "@fastify/cookie": "npm:^9.3.1"
+    "@fastify/helmet": "npm:^11.1.1"
     "@fastify/static": "npm:^7.0.3"
     "@nestjs-modules/mailer": "npm:^1.11.2"
     "@nestjs/cli": "npm:^10.0.0"
@@ -7713,13 +7724,12 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.0.0"
     fastify: "npm:^4.26.2"
     fastify-swagger: "npm:^5.2.0"
-    helmet: "npm:^7.1.0"
     jest: "npm:^29.5.0"
     joi: "npm:^17.12.2"
     jsonwebtoken: "npm:^9.0.2"
     morgan: "npm:^1.10.0"
     prettier: "npm:^3.0.0"
-    prisma: "npm:^5.11.0"
+    prisma: "npm:^5.12.1"
     reflect-metadata: "npm:^0.2.0"
     rxjs: "npm:^7.8.1"
     source-map-support: "npm:^0.5.21"
@@ -8267,7 +8277,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:^5.11.0":
+"prisma@npm:^5.12.1":
   version: 5.12.1
   resolution: "prisma@npm:5.12.1"
   dependencies:
