@@ -1,22 +1,44 @@
+//Dependencies
 import { NestFactory, Reflector } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { AppModule } from './app.module';
 import {
   ClassSerializerInterceptor,
   INestApplication,
+  Logger,
   VersioningType,
 } from '@nestjs/common';
-
 import fastifyCookie from '@fastify/cookie';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+//Imports
+import { AppModule } from './app.module';
+import { ResponseInterceptor } from './utils/response/response.interceptor';
+import { logger } from './utils/requestLogger/request.logger';
+import fastifyHelmet from '@fastify/helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: true }),
+    new FastifyAdapter({ ignoreTrailingSlash: true }),
   );
+
+  //swagger configurations
+  const config = new DocumentBuilder()
+    .setTitle('Note-repo')
+    .setDescription('Note-repo Api')
+    .setVersion('v1')
+    .addServer('http://localhost:3000/', 'Local environment')
+    .addServer('https://noterepo.onrender.com', 'Production')
+    .addTag('Note Repo Apis')
+    .build();
+
+  //Swagger Document
+  const document = SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('api', app, document);
 
   //Needed for response dtos to function
   registerGlobals(app);
@@ -26,6 +48,20 @@ async function bootstrap() {
     secret: process.env.COOKIE_SECRET,
     parseOptions: {
       path: '/',
+    },
+  });
+
+  //For request logging
+  app.use(logger());
+
+  app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: [`'self'`],
+        styleSrc: [`'self'`, `'unsafe-inline'`],
+        imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+        scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+      },
     },
   });
 
@@ -41,8 +77,14 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT, HOST);
 }
-bootstrap();
+
+bootstrap().then(() => {
+  new Logger('Server').log('Server listening');
+});
 
 export function registerGlobals(app: INestApplication) {
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new ResponseInterceptor(),
+  );
 }
