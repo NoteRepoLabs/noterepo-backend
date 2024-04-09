@@ -23,12 +23,15 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly cookie: CookieService,
     private readonly email: EmailService,
-  ) {}
+  ) { }
 
   private logger = new Logger('Authentication Service');
 
   async signUp(body: SignUpDto) {
     const { email, password } = body;
+
+    //convert emails to lowercase perform operating on it
+    email.toLowerCase();
 
     const user = await this.prisma.user.findUnique({ where: { email } });
 
@@ -63,6 +66,9 @@ export class AuthService {
   }
 
   async signIn({ email, password }: SignInDto, res: FastifyReply) {
+    //Converting emails to lowercase
+    email.toLowerCase();
+
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     // If user not found
