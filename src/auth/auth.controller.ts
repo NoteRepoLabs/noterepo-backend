@@ -23,7 +23,7 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('sign-up')
   @ApiResponse({ status: 201, description: 'User registered successfully' })
@@ -64,13 +64,13 @@ export class AuthController {
     return plainToInstance(AuthResponseDto, response);
   }
 
-  @Get('verifyAccount/:id')
+  @Get('verifyAccount/:userId')
+  @ApiResponse({ status: 200, description: 'User verified successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   @Version('1')
   async verifyAccount(
-    @Param('id', ParseUUIDPipe)
+    @Param('userId', ParseUUIDPipe)
     id: string,
-  ) {
-    return this.authService.verifyAccount(id);
   ): Promise<AuthResponseDto> {
     //Get Response from service
     const response = await this.authService.verifyAccount(id);
