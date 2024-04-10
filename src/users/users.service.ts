@@ -25,13 +25,13 @@ export class UsersService {
 
   //Removes a user
   async remove(id: string) {
-    await this.prisma.user.delete({ where: { id } });
+    await this.prisma.user.delete({ where: { id: id } });
     return;
   }
 
   //Only for prelaunch development purposes and should not be touched.
   async removeAllUsers() {
-    await this.prisma.user.deleteMany();
+    await this.prisma.user.deleteMany({});
     return;
   }
 }
