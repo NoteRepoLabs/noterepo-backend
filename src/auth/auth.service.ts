@@ -116,6 +116,8 @@ export class AuthService {
 
   //Verify Account
   async verifyAccount(id: string) {
+    this.logger.log(`This id is a string: ${typeof id === 'string'}`);
+
     //Find account with the verification id
     const account = await this.prisma.user.findUniqueOrThrow({
       where: {
