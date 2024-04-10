@@ -12,11 +12,10 @@ import { SignInDto } from './dto/sign-in.dto';
 import { JwtService } from 'src/jwt/jwt.service';
 import { CookieService } from 'src/cookie/cookie.service';
 import { FastifyReply } from 'fastify';
-import { v4 as uuid } from 'uuid';
 import { EmailService } from 'src/email/email.service';
-import { generateLink } from 'src/utils/generateLinks/generateLink';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { generateWelcomeLink } from 'src/utils/generateLinks/generateWelcomeLink';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -48,16 +47,13 @@ export class AuthService {
     // Generate verification id
     const verificationId = uuid();
 
-    //Generate verification link with verification id
-    const link = generateLink(verificationId);
-
     // save and return newUser Object
     const newUser = await this.prisma.user.create({
       data: { email, password: hashPassword, verificationId },
     });
 
     //Send verification link
-    this.email.sendVerificationLink(newUser.email, link);
+    this.email.sendVerificationLink(newUser.email, verificationId);
 
     this.logger.log('User Registered Successfully');
 
@@ -80,7 +76,21 @@ export class AuthService {
 
     //Check if user account is verified
     if (!user.isVerified) {
-      throw new UnauthorizedException('Your account is not verified');
+      //Get user verification id not used yet and Send verification link
+      this.email.sendVerificationLink(user.email, user.verificationId);
+
+      throw new UnauthorizedException(
+        `Your account is not verified, an email as be sent to ${user.email}`,
+      );
+    }
+
+    //If user didn't set initial username
+    if (user.username === null) {
+      //Generate welcome page link
+      const welcomeLink = generateWelcomeLink(user.id);
+
+      //Redirect user to the page
+      return res.redirect(302, welcomeLink);
     }
 
     const validatePassword = await bcrypt.compare(password, user.password);
@@ -104,7 +114,7 @@ export class AuthService {
     return user;
   }
 
-  //Basic Implementation. Not complete
+  //Verify Account
   async verifyAccount(id: string) {
     //Find account with the verification id
     const account = await this.prisma.user.findUniqueOrThrow({
@@ -114,7 +124,7 @@ export class AuthService {
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found');
+      throw new NotFoundException('Account not found or verified');
     }
 
     //If account found, verify user and set verification id empty
