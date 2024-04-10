@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
@@ -126,7 +128,11 @@ export class AuthService {
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found or verified.');
+      throw new NotFoundException('Account not found');
+    }
+
+    if(account.isVerified){
+      throw new HttpException("Account already verified", HttpStatus.OK)
     }
 
     //If account found, verify user and set verification id empty
