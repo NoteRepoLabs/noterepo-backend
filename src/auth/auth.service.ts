@@ -80,7 +80,21 @@ export class AuthService {
 
     //Check if user account is verified
     if (!user.isVerified) {
-      throw new UnauthorizedException('Your account is not verified');
+      //Get user verification id not used yet and Send verification link
+      this.email.sendVerificationLink(user.email, user.verificationId);
+
+      throw new UnauthorizedException(
+        `Your account is not verified, an email as be sent to ${user.email}`,
+      );
+    }
+
+    //If user didn't set initial username
+    if (user.username === null) {
+      //Generate welcome page link
+      const welcomeLink = generateWelcomeLink(user.id);
+
+      //Redirect user to the page
+      return res.redirect(302, welcomeLink);
     }
 
     const validatePassword = await bcrypt.compare(password, user.password);
@@ -114,7 +128,7 @@ export class AuthService {
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found');
+      throw new NotFoundException('Account not found or verified');
     }
 
     //If account found, verify user and set verification id empty
