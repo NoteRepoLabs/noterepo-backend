@@ -20,9 +20,15 @@ import { logger } from './utils/requestLogger/request.logger';
 import fastifyHelmet from '@fastify/helmet';
 
 async function bootstrap() {
+  //Fastify Adapter
+  const adapter = new FastifyAdapter({ ignoreTrailingSlash: true });
+
+  //Enable Cors
+  adapter.enableCors({ credentials: true, origin: '*' });
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ ignoreTrailingSlash: true }),
+    adapter,
   );
 
   //swagger configurations
