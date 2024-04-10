@@ -23,6 +23,7 @@ import * as Joi from 'joi';
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.string().required(),
         COOKIE_SECRET: Joi.string().required(),
+        WELCOME_LINK: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,
@@ -36,4 +37,4 @@ import * as Joi from 'joi';
   controllers: [AppController],
   providers: [AppService, JwtService, CookieService],
 })
-export class AppModule {}
+export class AppModule { }
