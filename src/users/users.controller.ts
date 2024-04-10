@@ -1,6 +1,7 @@
 import {
   Controller,
   Body,
+  Get,
   Patch,
   Param,
   Delete,
@@ -9,11 +10,20 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
+import { AuthResponseDto } from 'src/auth/dto/auth-response.dto';
 
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
+
+  @Get()
+  async getAllUsers(): Promise<AuthResponseDto[]> {
+    const users = await this.usersService.getAllUsers();
+
+    return plainToInstance(AuthResponseDto, users);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
