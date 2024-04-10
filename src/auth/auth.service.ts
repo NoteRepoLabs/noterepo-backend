@@ -130,14 +130,14 @@ export class AuthService {
     }
 
     //If account found, verify user and set verification id empty
-    await this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: {
         verificationId: id,
       },
       data: { isVerified: true, verificationId: '' },
     });
 
-    const welcomeLink = generateWelcomeLink(id);
+    const welcomeLink = generateWelcomeLink(user.id);
 
     return welcomeLink;
   }

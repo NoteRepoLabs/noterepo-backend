@@ -13,6 +13,11 @@ export class UsersService {
   //   return `This action returns a #${id} user`;
   // }
   //
+  async getAllUsers() {
+    const user = await this.prisma.user.findMany();
+
+    return user;
+  }
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} ${updateUserDto} user`;
