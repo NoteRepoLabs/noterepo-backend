@@ -114,7 +114,7 @@ export class AuthService {
     return user;
   }
 
-  //Basic Implementation. Not complete
+  //Verify Account
   async verifyAccount(id: string) {
     //Find account with the verification id
     const account = await this.prisma.user.findUniqueOrThrow({
