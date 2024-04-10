@@ -16,7 +16,7 @@ import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SetUsernameDto, setUsernameSchema } from './dto/set-username.dto';
+import { SetUsernameDto } from './dto/set-username.dto';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
@@ -84,13 +84,12 @@ export class AuthController {
     description: 'User successfully changed username',
   })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @UsePipes(new AuthValidationPipe(setUsernameSchema))
   async setInitialUsername(
-    @Param('userId', ParseUUIDPipe) id: string,
     @Body() body: SetUsernameDto,
+    @Param('userId', ParseUUIDPipe) id: string,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const response = this.authService.setInitialUsername(id, body);
+    const response = await this.authService.setInitialUsername(id, body);
 
     return plainToInstance(AuthResponseDto, response);
   }

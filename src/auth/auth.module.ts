@@ -5,9 +5,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtService } from 'src/jwt/jwt.service';
 import { CookieService } from 'src/cookie/cookie.service';
 import { EmailModule } from 'src/email/email.module';
+import { JoiPipeModule } from 'nestjs-joi';
 
 @Module({
-  imports: [PrismaModule, EmailModule],
+  imports: [PrismaModule, EmailModule, JoiPipeModule],
   controllers: [AuthController],
   providers: [AuthService, JwtService, CookieService],
 })
