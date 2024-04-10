@@ -14,7 +14,9 @@ import { CookieService } from 'src/cookie/cookie.service';
 import { FastifyReply } from 'fastify';
 import { v4 as uuid } from 'uuid';
 import { EmailService } from 'src/email/email.service';
-import { generateLink } from 'src/utils/generateLink';
+import { generateLink } from 'src/utils/generateLinks/generateLink';
+import { SetUsernameDto } from './dto/set-username.dto';
+import { generateWelcomeLink } from 'src/utils/generateLinks/generateWelcomeLink';
 
 @Injectable()
 export class AuthService {
@@ -105,7 +107,7 @@ export class AuthService {
   //Basic Implementation. Not complete
   async verifyAccount(id: string) {
     //Find account with the verification id
-    const account = this.prisma.user.findUniqueOrThrow({
+    const account = await this.prisma.user.findUniqueOrThrow({
       where: {
         verificationId: id,
       },
@@ -116,19 +118,38 @@ export class AuthService {
     }
 
     //If account found, verify user and set verification id empty
-    const user = this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         verificationId: id,
       },
       data: { isVerified: true, verificationId: '' },
     });
 
-    return user;
+    const welcomeLink = generateWelcomeLink(id);
+
+    return welcomeLink;
   }
 
-  async deleteUsers() {
-    await this.prisma.user.deleteMany();
+  async setInitialUsername(id: string, { username }: SetUsernameDto) {
+    //Find Account
+    const account = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
 
-    return 'Deleted Successfully';
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    //Set username
+    const user = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: { username },
+    });
+
+    return user;
   }
 }

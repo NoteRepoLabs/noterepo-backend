@@ -3,25 +3,23 @@ import {
   Post,
   Get,
   Body,
-  Version,
   UsePipes,
   Res,
   Param,
   ParseUUIDPipe,
-  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, signUpSchema } from './dto/sign-up.dto';
-//import { UpdateAuthDto } from './dto/update-auth.dto';
-import { AuthValidationPipe } from './pipes/validation.pipe';
+import { AuthValidationPipe } from '../utils/pipes/validation.pipe';
 import { SignInDto, signInSchema } from './dto/sign-in.dto';
 import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SetUsernameDto, setUsernameSchema } from './dto/set-username.dto';
 
 @ApiTags('Auth')
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
@@ -32,7 +30,6 @@ export class AuthController {
     type: SignUpDto,
     description: 'Json structure for user object',
   })
-  @Version('1')
   @UsePipes(new AuthValidationPipe(signUpSchema)) // Request body Validation
   async signUp(@Body() body: SignUpDto): Promise<AuthResponseDto> {
     //Get response from service
@@ -51,7 +48,6 @@ export class AuthController {
     type: SignInDto,
     description: 'Json structure for user object',
   })
-  @Version('1')
   @UsePipes(new AuthValidationPipe(signInSchema)) // Request body Validation
   async signIn(
     @Body() body: SignInDto,
@@ -65,23 +61,37 @@ export class AuthController {
   }
 
   @Get('verifyAccount/:userId')
-  @ApiResponse({ status: 200, description: 'User verified successfully' })
+  @ApiResponse({
+    status: 302,
+    description: 'User is redirected to welcome page',
+  })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @Version('1')
   async verifyAccount(
     @Param('userId', ParseUUIDPipe)
     id: string,
-  ): Promise<AuthResponseDto> {
-    //Get Response from service
-    const response = await this.authService.verifyAccount(id);
+    @Res() res: FastifyReply,
+  ) {
+    //Get welcome from service
+    const welcomeLink = await this.authService.verifyAccount(id);
 
-    return plainToInstance(AuthResponseDto, response);
+    //Redirect user
+    return res.redirect(302, welcomeLink);
   }
 
-  // For development purposes only. will be removed later
-  @Delete('delete')
-  @Version('1')
-  async deleteUsers() {
-    return this.authService.deleteUsers();
+  @Post('setInitialUsername/:userId')
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully changed username',
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @UsePipes(new AuthValidationPipe(setUsernameSchema))
+  async setInitialUsername(
+    @Param('userId', ParseUUIDPipe) id: string,
+    @Body() body: SetUsernameDto,
+  ): Promise<AuthResponseDto> {
+    //Get Response from service
+    const response = this.authService.setInitialUsername(id, body);
+
+    return plainToInstance(AuthResponseDto, response);
   }
 }
