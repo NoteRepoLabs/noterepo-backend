@@ -18,6 +18,7 @@ import { AuthResponseDto } from 'src/auth/dto/auth-response.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @ApiResponse({ status: 200, description: 'Fetch all users' })
   @Get()
   async getAllUsers(): Promise<AuthResponseDto[]> {
     const users = await this.usersService.getAllUsers();
