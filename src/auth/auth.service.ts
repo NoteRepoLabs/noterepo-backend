@@ -38,7 +38,7 @@ export class AuthService {
 
     //If user exists
     if (user) {
-      throw new BadRequestException('User Already exists');
+      throw new BadRequestException('User already exists.');
     }
 
     //Hash new user password
@@ -55,7 +55,7 @@ export class AuthService {
     //Send verification link
     this.email.sendVerificationLink(newUser.email, verificationId);
 
-    this.logger.log('User Registered Successfully');
+    this.logger.log('User registered successfully.');
 
     //Log user id
     this.logger.log({ id: newUser.id });
@@ -71,7 +71,7 @@ export class AuthService {
 
     // If user not found
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found.');
     }
 
     //Check if user account is verified
@@ -97,7 +97,7 @@ export class AuthService {
 
     //if password is not valid
     if (!validatePassword) {
-      throw new UnauthorizedException('email or password not correct');
+      throw new UnauthorizedException('Email or password not correct.');
     }
 
     //Generate Jwt token from jwt service
@@ -119,14 +119,14 @@ export class AuthService {
     this.logger.log(`This id is a string: ${typeof id === 'string'}`);
 
     //Find account with the verification id
-    const account = await this.prisma.user.findUniqueOrThrow({
+    const account = await this.prisma.user.findUnique({
       where: {
         verificationId: id,
       },
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found or verified');
+      throw new NotFoundException('Account not found or verified.');
     }
 
     //If account found, verify user and set verification id empty
@@ -151,7 +151,7 @@ export class AuthService {
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found');
+      throw new NotFoundException('Account not found.');
     }
 
     //Set username

@@ -35,8 +35,7 @@ export class UsersController {
   @HttpCode(204)
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    await this.usersService.remove(id);
-    return;
+    return await this.usersService.remove(id);
   }
 
   @ApiResponse({ status: 204, description: 'All users deleted 💀' })
