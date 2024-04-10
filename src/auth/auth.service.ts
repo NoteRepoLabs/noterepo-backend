@@ -164,4 +164,8 @@ export class AuthService {
 
     return user;
   }
+
+  async forgetPassword({ email }) {
+    console.log(email);
+  }
 }
