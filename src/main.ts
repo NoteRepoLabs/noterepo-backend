@@ -20,10 +20,24 @@ import { logger } from './utils/requestLogger/request.logger';
 import fastifyHelmet from '@fastify/helmet';
 
 async function bootstrap() {
+  //Fastify Adapter
+  const adapter = new FastifyAdapter({ ignoreTrailingSlash: true });
+
+  //Enable Cors
+  adapter.enableCors({ credentials: true, origin: '*' });
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ ignoreTrailingSlash: true }),
+    adapter,
   );
+
+  //Add api prefix to all endpoints
+  app.setGlobalPrefix('api');
+
+  //For versioning api
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
 
   //swagger configurations
   const config = new DocumentBuilder()
@@ -54,6 +68,7 @@ async function bootstrap() {
   //For request logging
   app.use(logger());
 
+  //Setup helmet for security
   app.register(fastifyHelmet, {
     contentSecurityPolicy: {
       directives: {
@@ -63,14 +78,6 @@ async function bootstrap() {
         scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
       },
     },
-  });
-
-  //Add api prefix to all endpoints
-  app.setGlobalPrefix('api');
-
-  //For versioning api
-  app.enableVersioning({
-    type: VersioningType.URI,
   });
 
   const HOST = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';

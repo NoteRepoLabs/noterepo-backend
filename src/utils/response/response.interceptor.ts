@@ -42,7 +42,7 @@ export class ResponseInterceptor implements NestInterceptor {
   responseHandler(res: any, context: ExecutionContext) {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    //const request = ctx.getRequest();
 
     return {
       status: 'success',
