@@ -6183,6 +6183,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"joi-class-decorators@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "joi-class-decorators@npm:1.1.1"
+  dependencies:
+    lodash: "npm:^4.17.21"
+  peerDependencies:
+    joi: ^17.2.1
+    reflect-metadata: ^0.1.13
+  checksum: 10c0/af7848559cbe732e491bc8641bf4e6aa4435b84cf490884880feb588c8609a33fa234263af53693295f3281b17343813c9d1c50b0800d8029f77fbdcf4e2ae4d
+  languageName: node
+  linkType: hard
+
 "joi@npm:^17.12.2":
   version: 17.12.3
   resolution: "joi@npm:17.12.3"
@@ -7554,6 +7566,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nestjs-joi@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "nestjs-joi@npm:1.10.0"
+  dependencies:
+    joi-class-decorators: "npm:^1.1.1"
+  peerDependencies:
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
+    "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
+    joi: ^17.2.1
+  checksum: 10c0/2c38f8e77941d6f1b51e6392bffafa6b70d6498f0dc99daed66216c6a94adef550e665407996f8dee7d065be68f825648422ff31d7ad3b14b3765eab9108baca
+  languageName: node
+  linkType: hard
+
 "nice-try@npm:^1.0.4":
   version: 1.0.5
   resolution: "nice-try@npm:1.0.5"
@@ -7728,6 +7753,7 @@ __metadata:
     joi: "npm:^17.12.2"
     jsonwebtoken: "npm:^9.0.2"
     morgan: "npm:^1.10.0"
+    nestjs-joi: "npm:^1.10.0"
     prettier: "npm:^3.0.0"
     prisma: "npm:^5.12.1"
     reflect-metadata: "npm:^0.2.0"
