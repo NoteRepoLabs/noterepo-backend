@@ -32,7 +32,10 @@ export class ResponseInterceptor implements NestInterceptor {
     response.status(status).send({
       status: 'fail',
       path: request.url,
-      message: status < 500 ? exception.message : 'An Error Occurred',
+      message:
+        status < 500
+          ? exception.message.replace(/"/g, '')
+          : 'An Error Occurred',
       error_trace:
         process.env.NODE_ENV === 'development' ? exception.stack : undefined,
     });
