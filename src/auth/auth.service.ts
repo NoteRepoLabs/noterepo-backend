@@ -31,10 +31,12 @@ export class AuthService {
   async signUp(body: SignUpDto) {
     const { email, password } = body;
 
-    //convert emails to lowercase perform operating on it
-    email.toLowerCase();
+    //Convert mail to lowercase
+    const lowercaseEmail = email.toLowerCase();
 
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: lowercaseEmail },
+    });
 
     //If user exists
     if (user) {
@@ -49,7 +51,7 @@ export class AuthService {
 
     // save and return newUser Object
     const newUser = await this.prisma.user.create({
-      data: { email, password: hashPassword, verificationId },
+      data: { email: lowercaseEmail, password: hashPassword, verificationId },
     });
 
     //Send verification link
@@ -65,9 +67,11 @@ export class AuthService {
 
   async signIn({ email, password }: SignInDto, res: FastifyReply) {
     //Converting emails to lowercase
-    email.toLowerCase();
+    const lowercaseEmail = email.toLowerCase();
 
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: lowercaseEmail },
+    });
 
     // If user not found
     if (!user) {
@@ -161,6 +165,10 @@ export class AuthService {
 
     if (!account) {
       throw new NotFoundException('Account not found.');
+    }
+
+    if (account.username !== null) {
+      throw new BadRequestException('Username already set');
     }
 
     //Set username
