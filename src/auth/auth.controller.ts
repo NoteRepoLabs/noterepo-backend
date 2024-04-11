@@ -21,7 +21,7 @@ import { SetUsernameDto } from './dto/set-username.dto';
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('sign-up')
   @ApiResponse({ status: 201, description: 'User registered successfully' })
