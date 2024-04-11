@@ -1,3 +1,3 @@
 export function generateResetPasswordLink(id: string) {
-  return `${process.env.RESET_PASSWORD_PAGE}?userId=${id}`;
+  return `${process.env.RESET_PASSWORD_LINK}?userId=${id}`;
 }
