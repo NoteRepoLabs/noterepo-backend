@@ -82,7 +82,7 @@ export class AuthService {
       this.email.sendVerificationLink(user.email, user.verificationId);
 
       throw new UnauthorizedException(
-        `Your account is not verified, an email as be sent to ${user.email}`,
+        `Your account is not verified, an email as be sent to ${user.email.replace(/(?<=^.{4})\w+/g, (match) => '*'.repeat(match.length))}`,
       );
     }
 
@@ -117,7 +117,7 @@ export class AuthService {
   }
 
   //Verify Account
-  async verifyAccount(id: string) {
+  async verifyAccount(id: string, res: FastifyReply) {
     this.logger.log(`This id is a string: ${typeof id === 'string'}`);
 
     //Find account with the verification id
@@ -131,8 +131,9 @@ export class AuthService {
       throw new NotFoundException('Account not found');
     }
 
-    if(account.isVerified){
-      throw new HttpException("Account already verified", HttpStatus.OK)
+    //If account is already verified
+    if (account.isVerified) {
+      return res.redirect(302, process.env.SIGN_IN_LINK);
     }
 
     //If account found, verify user and set verification id empty
@@ -148,7 +149,11 @@ export class AuthService {
     return welcomeLink;
   }
 
-  async setInitialUsername(id: string, { username }: SetUsernameDto) {
+  async setInitialUsername(
+    id: string,
+    { username }: SetUsernameDto,
+    res: FastifyReply,
+  ) {
     //Find Account
     const account = await this.prisma.user.findUnique({
       where: {
@@ -167,6 +172,14 @@ export class AuthService {
       },
       data: { username },
     });
+
+    //Generate Jwt token from jwt service
+    const token = await this.jwt.sign({ id: user.id });
+
+    //set cookie header
+    this.cookie.sendCookie(token, res);
+
+    this.logger.log('Username set successfully.');
 
     return user;
   }

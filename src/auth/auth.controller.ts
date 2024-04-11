@@ -21,7 +21,7 @@ import { SetUsernameDto } from './dto/set-username.dto';
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('sign-up')
   @ApiResponse({ status: 201, description: 'User registered successfully' })
@@ -72,7 +72,7 @@ export class AuthController {
     @Res() res: FastifyReply,
   ) {
     //Get welcome from service
-    const welcomeLink = await this.authService.verifyAccount(id);
+    const welcomeLink = await this.authService.verifyAccount(id, res);
 
     //Redirect user
     return res.redirect(302, welcomeLink);
@@ -87,9 +87,10 @@ export class AuthController {
   async setInitialUsername(
     @Body() body: SetUsernameDto,
     @Param('userId', ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const response = await this.authService.setInitialUsername(id, body);
+    const response = await this.authService.setInitialUsername(id, body, res);
 
     return plainToInstance(AuthResponseDto, response);
   }
