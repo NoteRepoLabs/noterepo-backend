@@ -25,6 +25,7 @@ import * as Joi from 'joi';
         COOKIE_SECRET: Joi.string().required(),
         WELCOME_LINK: Joi.string().required(),
         SIGN_IN_LINK: Joi.string().required(),
+        RESET_PASSWORD_LINK: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,
