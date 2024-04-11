@@ -24,6 +24,7 @@ import * as Joi from 'joi';
         JWT_EXPIRATION_TIME: Joi.string().required(),
         COOKIE_SECRET: Joi.string().required(),
         WELCOME_LINK: Joi.string().required(),
+        SIGN_IN_LINK: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,
