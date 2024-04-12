@@ -55,7 +55,7 @@ export class AuthService {
     });
 
     //Send verification link
-    this.email.sendVerificationLink(newUser.email, verificationId);
+    this.email.sendVerificationMail(newUser.email, verificationId);
 
     this.logger.log('User registered successfully.');
 
@@ -81,10 +81,10 @@ export class AuthService {
     //Check if user account is verified
     if (!user.isVerified) {
       //Get user verification id not used yet and Send verification link
-      this.email.sendVerificationLink(user.email, user.verificationId);
+      this.email.sendVerificationMail(user.email, user.verificationId);
 
       throw new UnauthorizedException(
-        `Your account is not verified, an email as be sent to ${user.email.replace(/(?<=^.{4})\w+/g, (match) => '*'.repeat(match.length))}`,
+        `Your account is not verified, an email as be sent to ${user.email.replace(/(?<=^.{3})\w+/g, (match) => '*'.repeat(match.length))}`,
       );
     }
 
@@ -120,8 +120,6 @@ export class AuthService {
 
   //Verify Account
   async verifyAccount(id: string, res: FastifyReply) {
-    this.logger.log(`This id is a string: ${typeof id === 'string'}`);
-
     //Find account with the verification id
     const account = await this.prisma.user.findUnique({
       where: {
@@ -129,12 +127,8 @@ export class AuthService {
       },
     });
 
+    //If account is found redirect to signin page
     if (!account) {
-      throw new NotFoundException('Account not found');
-    }
-
-    //If account is already verified
-    if (account.isVerified) {
       return res.redirect(302, process.env.SIGN_IN_LINK);
     }
 

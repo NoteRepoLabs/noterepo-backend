@@ -24,7 +24,11 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('sign-up')
-  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'User registered successfully',
+    type: AuthResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiBody({
     type: SignUpDto,
@@ -40,7 +44,11 @@ export class AuthController {
   }
 
   @Post('sign-in')
-  @ApiResponse({ status: 200, description: 'User signed in successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User signed in successfully',
+    type: AuthResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'User not verified' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -64,6 +72,12 @@ export class AuthController {
   @ApiResponse({
     status: 302,
     description: 'User is redirected to welcome page',
+    headers: {
+      Location: {
+        description: 'The URL to the welcome page',
+        schema: { type: 'string' },
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'User not found' })
   async verifyAccount(
@@ -82,8 +96,10 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'User successfully changed username',
+    type: AuthResponseDto,
   })
   @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiBody({ type: SetUsernameDto })
   async setInitialUsername(
     @Body() body: SetUsernameDto,
     @Param('userId', ParseUUIDPipe) id: string,
