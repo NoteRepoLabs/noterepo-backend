@@ -6,13 +6,17 @@ import {
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
-import { generateResetPasswordLink } from 'src/utils/generateLinks/generateResetPasswordLink';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { generateResetPasswordLink } from 'src/utils/generateLinks/generateResetPasswordLink';
 import * as bcrypt from 'bcrypt';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly email: EmailService,
+  ) { }
 
   //Development only
   async getAllUsers() {
@@ -38,8 +42,9 @@ export class UsersService {
 
     const link = generateResetPasswordLink(user.id);
 
-    //Temporary
-    return link;
+    await this.email.sendResetPasswordMail(email, link);
+
+    return `Reset password mail has be sent to ${email.replace(/(?<=^.{3})\w+/g, (match) => '*'.repeat(match.length))}`;
   }
 
   async resetPassword(
