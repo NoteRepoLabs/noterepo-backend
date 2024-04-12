@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   HttpCode,
-  UsePipes,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -16,11 +15,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { AuthResponseDto } from 'src/auth/dto/auth-response.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
-import {
-  ResetPasswordDto,
-  resetPasswordSchema,
-} from './dto/reset-password.dto';
-import { AuthValidationPipe } from '../utils/pipes/validation.pipe';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
@@ -60,14 +55,12 @@ export class UsersController {
     description: 'Password reset successfully',
   })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @UsePipes(new AuthValidationPipe(resetPasswordSchema))
   async resetPassword(
     @Param('userId', ParseUUIDPipe) id: string,
-    body: ResetPasswordDto,
+    @Body() body: ResetPasswordDto,
   ) {
     const response = await this.usersService.resetPassword(id, body);
 
-    //Temporary
     return response;
   }
 
