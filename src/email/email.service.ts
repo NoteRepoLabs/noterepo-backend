@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { generateVerifyLink } from '../utils/generateLinks/generateVerifyLink';
+import { generateVerifyLink } from 'src/utils/generateLinks/generateVerifyLink';
 import Handlebars from 'handlebars';
 import { join } from 'path';
 import * as FormData from 'form-data';
@@ -45,6 +45,7 @@ export class EmailService {
         ? process.env.TEST_MAIL_DOMAIN
         : process.env.MAIL_DOMAIN;
 
+    //Create and send messages with mailgun api
     mg.messages
       .create(domain, {
         from: `Noterepo <${process.env.NOTEREPO_MAIL}>`,
@@ -53,25 +54,49 @@ export class EmailService {
         text,
         html,
       })
-      .then((msg) => console.log(msg))
-      .catch((err) => console.error(err));
+      .then((msg) => {
+        console.log('Mail sent successfully');
+
+        console.log(msg);
+      })
+      .catch((err) => {
+        console.log('There was an error while sending mail');
+
+        console.error(err);
+      });
   }
 
-  async sendVerificationLink(email: string, verificationId: string) {
+  async sendVerificationMail(email: string, verificationId: string) {
     //Get verification link
-    const link = generateVerifyLink(verificationId);
+    const link = await generateVerifyLink(verificationId);
 
     //compile templates
     const creds = {
       link: link,
     };
 
+    //Read and compile the template
     const html = await this.readAndCompileTemplate('verify.html', creds);
 
     await this.sendEmail(
       email,
       html,
-      'Noterepo Account Verification',
+      'Noterepo account verification',
+      undefined,
+    );
+  }
+
+  async sendResetPasswordMail(email: string, link: string) {
+    const creds = {
+      resetLink: link,
+    };
+
+    const html = await this.readAndCompileTemplate('resetPassword.html', creds);
+
+    await this.sendEmail(
+      email,
+      html,
+      'Noterepo reset password mail',
       undefined,
     );
   }
