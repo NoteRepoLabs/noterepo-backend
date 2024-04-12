@@ -25,6 +25,12 @@ import * as Joi from 'joi';
         COOKIE_SECRET: Joi.string().required(),
         WELCOME_LINK: Joi.string().required(),
         SIGN_IN_LINK: Joi.string().required(),
+        RESET_PASSWORD_LINK: Joi.string().required(),
+        MAILGUN_API_KEY: Joi.string().required(),
+        TEST_MAILGUN_API_KEY: Joi.string().required(),
+        NOTEREPO_MAIL: Joi.string().required(),
+        MAIL_DOMAIN: Joi.string().required(),
+        TEST_MAIL_DOMAIN: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,
@@ -38,4 +44,4 @@ import * as Joi from 'joi';
   controllers: [AppController],
   providers: [AppService, JwtService, CookieService],
 })
-export class AppModule { }
+export class AppModule {}
