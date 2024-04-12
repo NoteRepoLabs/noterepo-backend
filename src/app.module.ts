@@ -9,6 +9,14 @@ import { CookieService } from './cookie/cookie.service';
 import { EmailModule } from './email/email.module';
 import { UsersModule } from './users/users.module';
 import * as Joi from 'joi';
+import {
+  ThrottlerModule,
+  minutes,
+  seconds,
+  ThrottlerGuard,
+} from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -31,10 +39,21 @@ import * as Joi from 'joi';
         NOTEREPO_MAIL: Joi.string().required(),
         MAIL_DOMAIN: Joi.string().required(),
         TEST_MAIL_DOMAIN: Joi.string().required(),
+        REDIS_URI: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,
       },
+    }),
+    ThrottlerModule.forRoot({
+      //Rate limiting
+      throttlers: [
+        { limit: 10, ttl: seconds(60) },
+        { limit: 40, ttl: minutes(30) },
+      ],
+
+      // connection url
+      storage: new ThrottlerStorageRedisService(process.env.REDIS_URI),
     }),
     PrismaModule,
     AuthModule,
@@ -42,6 +61,11 @@ import * as Joi from 'joi';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtService, CookieService],
+  providers: [
+    AppService,
+    JwtService,
+    CookieService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}
