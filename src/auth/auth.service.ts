@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
@@ -33,10 +31,12 @@ export class AuthService {
   async signUp(body: SignUpDto) {
     const { email, password } = body;
 
-    //convert emails to lowercase perform operating on it
-    email.toLowerCase();
+    //Convert mail to lowercase
+    const lowercaseEmail = email.toLowerCase();
 
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: lowercaseEmail },
+    });
 
     //If user exists
     if (user) {
@@ -51,11 +51,11 @@ export class AuthService {
 
     // save and return newUser Object
     const newUser = await this.prisma.user.create({
-      data: { email, password: hashPassword, verificationId },
+      data: { email: lowercaseEmail, password: hashPassword, verificationId },
     });
 
     //Send verification link
-    this.email.sendVerificationLink(newUser.email, verificationId);
+    this.email.sendVerificationMail(newUser.email, verificationId);
 
     this.logger.log('User registered successfully.');
 
@@ -67,9 +67,11 @@ export class AuthService {
 
   async signIn({ email, password }: SignInDto, res: FastifyReply) {
     //Converting emails to lowercase
-    email.toLowerCase();
+    const lowercaseEmail = email.toLowerCase();
 
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: lowercaseEmail },
+    });
 
     // If user not found
     if (!user) {
@@ -79,10 +81,10 @@ export class AuthService {
     //Check if user account is verified
     if (!user.isVerified) {
       //Get user verification id not used yet and Send verification link
-      this.email.sendVerificationLink(user.email, user.verificationId);
+      this.email.sendVerificationMail(user.email, user.verificationId);
 
       throw new UnauthorizedException(
-        `Your account is not verified, an email as be sent to ${user.email.replace(/(?<=^.{4})\w+/g, (match) => '*'.repeat(match.length))}`,
+        `Your account is not verified, an email as be sent to ${user.email.replace(/(?<=^.{3})\w+/g, (match) => '*'.repeat(match.length))}`,
       );
     }
 
@@ -118,8 +120,6 @@ export class AuthService {
 
   //Verify Account
   async verifyAccount(id: string, res: FastifyReply) {
-    this.logger.log(`This id is a string: ${typeof id === 'string'}`);
-
     //Find account with the verification id
     const account = await this.prisma.user.findUnique({
       where: {
@@ -127,12 +127,8 @@ export class AuthService {
       },
     });
 
+    //If account is found redirect to signin page
     if (!account) {
-      throw new NotFoundException('Account not found');
-    }
-
-    //If account is already verified
-    if (account.isVerified) {
       return res.redirect(302, process.env.SIGN_IN_LINK);
     }
 
@@ -163,6 +159,10 @@ export class AuthService {
 
     if (!account) {
       throw new NotFoundException('Account not found.');
+    }
+
+    if (account.username !== null) {
+      throw new BadRequestException('Username already set');
     }
 
     //Set username

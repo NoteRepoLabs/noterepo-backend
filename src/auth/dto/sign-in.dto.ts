@@ -5,11 +5,15 @@ import * as Joi from 'joi';
 export class SignInDto {
   @ApiProperty({
     example: 'example123@gmail.com',
+    description: 'The email address of the user signing in.',
+    format: 'email',
     required: true,
   })
   email: string;
   @ApiProperty({
     example: '123456',
+    description: 'The password of the user signing in.',
+    minLength: 6,
     required: true,
   })
   password: string;
