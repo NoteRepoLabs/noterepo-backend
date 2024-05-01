@@ -6,15 +6,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/sign-in.dto';
-import { JwtService } from 'src/jwt/jwt.service';
-import { CookieService } from 'src/cookie/cookie.service';
+import { JwtService } from '../jwt/jwt.service';
+import { CookieService } from '../cookie/cookie.service';
 import { FastifyReply } from 'fastify';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 import { SetUsernameDto } from './dto/set-username.dto';
-import { generateWelcomeLink } from 'src/utils/generateLinks/generateWelcomeLink';
+import { generateWelcomeLink } from '../utils/generateLinks/generateWelcomeLink';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
