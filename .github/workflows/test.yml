@@ -6,9 +6,18 @@ on:
       - '**'
   workflow_call:
     inputs:
-      environment:
+      env:
         required: true
         type: string
+      secrets:
+        MAIL_DOMAIN:
+          required: true
+      NOTEREPO_MAIL:
+        required: true
+      TEST_MAILGUN_API_KEY:
+        required: true
+      TEST_MAIL_DOMAIN:
+        required: true
 jobs:
   build:
     name: build
