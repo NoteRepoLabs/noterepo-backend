@@ -6,7 +6,7 @@ on:
       - '**'
 jobs:
   build:
-    environment: Github Actions Environment secrets
+    #environment: Github Actions Environment secrets
     name: build
     runs-on: ubuntu-latest
     steps:
