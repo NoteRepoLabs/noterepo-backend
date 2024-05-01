@@ -24,7 +24,14 @@ async function bootstrap() {
   const adapter = new FastifyAdapter({ ignoreTrailingSlash: true });
 
   //Enable Cors
-  adapter.enableCors({ credentials: true, origin: '*' });
+  adapter.enableCors({
+    credentials: true,
+    origin: [
+      'https://www.noterepo.com.ng',
+      'https://noterepo-web.vercel.app',
+      'http://localhost:3456',
+    ],
+  });
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
