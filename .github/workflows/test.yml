@@ -2,7 +2,8 @@ name: Run Noterepo Tests
 
 on:
   push:
-    branches: _ '**'
+    branches:  
+    - '**'
 
 jobs:
   build:
