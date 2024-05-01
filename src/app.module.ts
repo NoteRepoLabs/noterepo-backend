@@ -24,8 +24,9 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
-          .valid('development', 'production')
-          .default('development'),
+          .valid('development', 'production', 'test')
+          .default('development')
+          .required(),
         PORT: Joi.number().port().default(3000),
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
@@ -68,4 +69,4 @@ import { APP_GUARD } from '@nestjs/core';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
-export class AppModule {}
+export class AppModule { }

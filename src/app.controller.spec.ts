@@ -15,8 +15,10 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Welcome to Note Repo Api V1', () => {
+      expect(appController.getHello()).toEqual({
+        message: 'Welcome to Note Repo Api V1',
+      });
     });
   });
 });

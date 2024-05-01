@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import * as Joi from 'joi';
 import { JoiSchema } from 'nestjs-joi';
-import { joiMessages } from 'src/utils/joi/joi.messages';
+import { joiMessages } from '../../utils/joi/joi.messages';
 
 export class ResetPasswordDto {
   @ApiProperty({

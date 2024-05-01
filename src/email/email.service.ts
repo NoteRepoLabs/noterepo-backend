@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { generateVerifyLink } from 'src/utils/generateLinks/generateVerifyLink';
+import { generateVerifyLink } from '../utils/generateLinks/generateVerifyLink';
 import Handlebars from 'handlebars';
 import { join } from 'path';
 import * as FormData from 'form-data';
