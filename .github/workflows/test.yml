@@ -4,12 +4,15 @@ on:
   push:
     branches:
       - '**'
-
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
 jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-    environment: Github Actions Environment secrets
     env:
       MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
 
