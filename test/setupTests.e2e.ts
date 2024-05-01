@@ -4,7 +4,8 @@ import {
 } from '@testcontainers/postgresql';
 import { Client } from 'pg';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 let postgresContainer: StartedPostgreSqlContainer;
 let postgresClient: Client;
@@ -26,10 +27,9 @@ beforeAll(async () => {
   //Set new database Url
   const databaseUrl = `postgresql://${postgresClient.user}:${postgresClient.password}@${postgresClient.host}:${postgresClient.port}/${postgresClient.database}`;
 
-  // Execute Prisma migrations
-  execSync('npx prisma migrate dev', {
-    env: { DATABASE_URL: databaseUrl },
-  });
+  const execAsync = promisify(exec);
+
+  await execAsync(`DATABASE_URL=${databaseUrl} npx prisma migrate dev`);
 
   //Set prisma instance
   prismaService = new PrismaService({
