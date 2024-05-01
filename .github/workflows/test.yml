@@ -9,6 +9,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    environment: Github Actions Environment secrets
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +30,6 @@ jobs:
         run: rm -rf node_modules && yarn install --frozen-lockfile
 
       - name: Run Tests
-        environment: Github Actions Environment secrets
         env:
           MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
 
