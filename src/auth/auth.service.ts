@@ -15,7 +15,7 @@ import { FastifyReply } from 'fastify';
 import { EmailService } from '../email/email.service';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { generateWelcomeLink } from '../utils/generateLinks/generateWelcomeLink';
-import { v4 as uuid } from 'uuid';
+//import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +24,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly cookie: CookieService,
     private readonly email: EmailService,
-  ) { }
+  ) {}
 
   private logger = new Logger('Authentication Service');
 
@@ -47,15 +47,15 @@ export class AuthService {
     const hashPassword = await bcrypt.hash(password, 10);
 
     // Generate verification id
-    const verificationId = uuid();
+    //const verificationId = uuid();
 
     // save and return newUser Object
     const newUser = await this.prisma.user.create({
-      data: { email: lowercaseEmail, password: hashPassword, verificationId },
+      data: { email: lowercaseEmail, password: hashPassword },
     });
 
     //Send verification link
-    this.email.sendVerificationMail(newUser.email, verificationId);
+    this.email.sendVerificationMail(newUser.email, newUser.verificationId);
 
     this.logger.log('User registered successfully.');
 
@@ -139,7 +139,7 @@ export class AuthService {
       where: {
         verificationId: id,
       },
-      data: { isVerified: true, verificationId: '' },
+      data: { isVerified: true },
     });
 
     const welcomeLink = generateWelcomeLink(user.id);
@@ -171,6 +171,7 @@ export class AuthService {
     const user = await this.prisma.user.update({
       where: {
         id,
+        verificationId: '',
       },
       data: { username },
     });
