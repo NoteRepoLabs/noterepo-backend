@@ -30,12 +30,9 @@ jobs:
 
       - name: Run Tests
         env:
-          MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
-
-          NOTEREPO_MAIL: ${{ secrets.NOTEREPO_MAIL }}
-
           TEST_MAILGUN_API_KEY: ${{ secrets.TEST_MAILGUN_API_KEY }}
-
+          MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
+          NOTEREPO_MAIL: ${{ secrets.NOTEREPO_MAIL }}
           TEST_MAIL_DOMAIN: ${{ secrets.TEST_MAIL_DOMAIN }}
 
         run: yarn run test:e2e && yarn run test
