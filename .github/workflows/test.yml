@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Test Actions
+      - name: Expose Variables
         env:
           MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
 
@@ -20,15 +20,14 @@ jobs:
 
           TEST_MAIL_DOMAIN: ${{ secrets.TEST_MAIL_DOMAIN }}
 
-        uses: actions/checkout@v4
-
-      - name: Echo Environment variables
-        shell: bash
         run: |
           echo "$MAIL_DOMAIN"
           echo "$NOTEREPO_MAIL"
           echo "$TEST_MAIL_DOMAIN"
           echo "$TEST_MAILGUN_API_KEY"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Nodejs 20 Environment
         uses: actions/setup-node@v4
