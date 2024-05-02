@@ -20,7 +20,7 @@ jobs:
 
           TEST_MAIL_DOMAIN: ${{ secrets.TEST_MAIL_DOMAIN }}
 
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Setup Nodejs 20 Environment
         uses: actions/setup-node@v4
