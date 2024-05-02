@@ -11,7 +11,6 @@ jobs:
     environment: production
     steps:
       - name: Test Actions
-      - uses: actions/checkout@v4
         env:
           MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
 
@@ -20,6 +19,8 @@ jobs:
           TEST_MAILGUN_API_KEY: ${{ secrets.TEST_MAILGUN_API_KEY }}
 
           TEST_MAIL_DOMAIN: ${{ secrets.TEST_MAIL_DOMAIN }}
+
+      - uses: actions/checkout@v4
 
       - name: Setup Nodejs 20 Environment
         uses: actions/setup-node@v4
