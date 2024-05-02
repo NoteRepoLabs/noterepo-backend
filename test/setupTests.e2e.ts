@@ -29,7 +29,7 @@ beforeAll(async () => {
 
   const execAsync = promisify(exec);
 
-  await execAsync(`DATABASE_URL=${databaseUrl} npx prisma migrate dev`);
+  await execAsync(`DATABASE_URL=${databaseUrl} npx prisma migrate deploy`);
 
   //Set prisma instance
   prismaService = new PrismaService({

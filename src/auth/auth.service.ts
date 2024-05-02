@@ -24,7 +24,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly cookie: CookieService,
     private readonly email: EmailService,
-  ) {}
+  ) { }
 
   private logger = new Logger('Authentication Service');
 
@@ -46,15 +46,12 @@ export class AuthService {
     //Hash new user password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    // Generate verification id
-    //const verificationId = uuid();
-
     // save and return newUser Object
     const newUser = await this.prisma.user.create({
       data: { email: lowercaseEmail, password: hashPassword },
     });
 
-    //Send verification link
+    //Send verification link with verificationId generated automatically by the database
     this.email.sendVerificationMail(newUser.email, newUser.verificationId);
 
     this.logger.log('User registered successfully.');
@@ -134,7 +131,7 @@ export class AuthService {
       return res.redirect(302, process.env.SIGN_IN_LINK);
     }
 
-    //If account found, verify user and set verification id empty
+    //If account found, verify user
     const user = await this.prisma.user.update({
       where: {
         verificationId: id,
@@ -171,7 +168,6 @@ export class AuthService {
     const user = await this.prisma.user.update({
       where: {
         id,
-        verificationId: '',
       },
       data: { username },
     });
