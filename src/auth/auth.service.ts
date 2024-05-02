@@ -109,6 +109,8 @@ export class AuthService {
 
     //set cookie header
     this.cookie.sendCookie(token, res);
+    //For development purpose
+    this.cookie.sendDevCookie(token, res);
 
     this.logger.log('User signed in successfully');
 
@@ -178,6 +180,8 @@ export class AuthService {
 
     //set cookie header
     this.cookie.sendCookie(token, res);
+    //For development purposes only
+    this.cookie.sendDevCookie(token, res);
 
     this.logger.log('Username set successfully.');
 
