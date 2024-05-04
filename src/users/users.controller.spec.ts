@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
+import { JwtService } from '../jwt/jwt.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -10,7 +11,7 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [UsersService, PrismaService, EmailService],
+      providers: [UsersService, PrismaService, EmailService, JwtService],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
