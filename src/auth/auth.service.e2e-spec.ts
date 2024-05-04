@@ -32,7 +32,7 @@ describe('authService', () => {
 
     try {
       const newUser = await service.signUp({
-        email: 'noterepo.labs@proton.me',
+        email: 'anuolu1645@gmail.com',
         password: '12345678',
       });
 
