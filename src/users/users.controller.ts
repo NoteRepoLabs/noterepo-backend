@@ -17,7 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { AuthResponseDto } from '../auth/dto/auth-response.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AuthGuard } from 'src/guards/auth.guards';
+import { AuthGuard } from '../guards/auth.guards';
 
 @ApiTags('Users')
 @UseGuards(AuthGuard)
