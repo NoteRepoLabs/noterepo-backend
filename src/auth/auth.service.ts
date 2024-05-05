@@ -24,7 +24,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly cookie: CookieService,
     private readonly email: EmailService,
-  ) { }
+  ) {}
 
   private logger = new Logger('Authentication Service');
 
@@ -179,9 +179,5 @@ export class AuthService {
     this.logger.log('Username set successfully.');
 
     return user;
-  }
-
-  async forgetPassword({ email }) {
-    console.log(email);
   }
 }
