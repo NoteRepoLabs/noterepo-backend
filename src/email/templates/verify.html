@@ -2,35 +2,75 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body>
+  <body bgcolor="#FF0000">
     <div
       class="container"
       style="
-        max-width: 600px;
+        max-width: 560px;
+        width: 100%;
         margin: 0 auto;
         padding: 20px;
         text-align: center;
+        font-family: 'Roboto', sans-serif;
       "
     >
-      <h1>Welcome to Noterepo</h1>
-      <h4>
-        To get you started, please verify your account by clicking the button
-        below.
+      <img
+        src="https://i.imgur.com/8Wf8hlO.png"
+        alt="NoteRepo Banner"
+        style="
+          margin-bottom: 32px;
+          display: block;
+          max-width: 600px;
+          width: 100%;
+        "
+      />
+      <h1 style="font-size: 24px; color: #090a0e">Welcome to Noterepo</h1>
+      <h4
+        style="
+          font-size: 14px;
+          color: #66667b;
+          margin-top: 18px;
+          font-weight: 400;
+          line-height: 22px;
+        "
+      >
+        We&apos;re excited to have you onboard, get access to and share lecture
+        materials easily. Click on the button to verify your email address and
+        continue.
       </h4>
       <a
         href="{{link}}"
         style="
-          display: inline-block;
-          padding: 10px 20px;
-          background-color: #007bff;
+          display: block;
+          padding: 16px 24px;
+          font-size: 14px;
+          background-color: #0d0e13;
           color: #fff;
           text-decoration: none;
-          border-radius: 5px;
+          border-radius: 14px;
+          cursor: pointer;
+          margin-top: 32px;
         "
       >
         Verify Email
       </a>
+      <p
+        style="
+          margin-top: 24px;
+          color: #66667b;
+          font-weight: 200;
+          font-size: 14px;
+        "
+      >
+        NoteRepo Engineering Team
+      </p>
     </div>
   </body>
 </html>
