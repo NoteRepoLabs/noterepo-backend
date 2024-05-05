@@ -24,7 +24,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly cookie: CookieService,
     private readonly email: EmailService,
-  ) { }
+  ) {}
 
   private logger = new Logger('Authentication Service');
 
