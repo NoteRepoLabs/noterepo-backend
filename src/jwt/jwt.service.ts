@@ -8,4 +8,9 @@ export class JwtService {
       expiresIn: process.env.JWT_EXPIRATION_TIME,
     });
   }
+
+  async verify(token: string): Promise<jwt.JwtPayload | string> {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    return payload;
+  }
 }
