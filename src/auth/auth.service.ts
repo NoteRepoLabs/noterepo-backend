@@ -15,7 +15,7 @@ import { FastifyReply } from 'fastify';
 import { EmailService } from '../email/email.service';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { generateWelcomeLink } from '../utils/generateLinks/generateWelcomeLink';
-import { v4 as uuid } from 'uuid';
+//import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -46,16 +46,13 @@ export class AuthService {
     //Hash new user password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    // Generate verification id
-    const verificationId = uuid();
-
     // save and return newUser Object
     const newUser = await this.prisma.user.create({
-      data: { email: lowercaseEmail, password: hashPassword, verificationId },
+      data: { email: lowercaseEmail, password: hashPassword },
     });
 
-    //Send verification link
-    this.email.sendVerificationMail(newUser.email, verificationId);
+    //Send verification link with verificationId generated automatically by the database
+    this.email.sendVerificationMail(newUser.email, newUser.verificationId);
 
     this.logger.log('User registered successfully.');
 
@@ -109,6 +106,8 @@ export class AuthService {
 
     //set cookie header
     this.cookie.sendCookie(token, res);
+    //For development purpose
+    this.cookie.sendDevCookie(token, res);
 
     this.logger.log('User signed in successfully');
 
@@ -132,12 +131,12 @@ export class AuthService {
       return res.redirect(302, process.env.SIGN_IN_LINK);
     }
 
-    //If account found, verify user and set verification id empty
+    //If account found, verify user
     const user = await this.prisma.user.update({
       where: {
         verificationId: id,
       },
-      data: { isVerified: true, verificationId: '' },
+      data: { isVerified: true },
     });
 
     const welcomeLink = generateWelcomeLink(user.id);
@@ -178,6 +177,8 @@ export class AuthService {
 
     //set cookie header
     this.cookie.sendCookie(token, res);
+    //For development purposes only
+    this.cookie.sendDevCookie(token, res);
 
     this.logger.log('Username set successfully.');
 
