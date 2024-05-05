@@ -4,11 +4,17 @@ import { FastifyReply } from 'fastify';
 @Injectable()
 export class CookieService {
   sendCookie(value: string, res: FastifyReply) {
+    const isDevMode = process.env.NODE_ENV === 'development';
+
     return res.cookie('authtoken', value, {
-      httpOnly: true,
+      secure: true,
+      httpOnly: isDevMode ? false : true,
       sameSite: 'none',
-      secure: process.env.NODE_ENV === 'development' ? false : true,
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), //1 day
+      domain: isDevMode
+        ? 'http://localhost:3456'
+        : 'https://www.noterepo.com.ng',
+      path: '/',
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
     });
   }
 }
