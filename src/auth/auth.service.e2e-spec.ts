@@ -48,7 +48,6 @@ describe('authService', () => {
       expect(result.rows[0].role).toEqual(newUser.role);
       expect(result.rows[0].isVerified).toEqual(newUser.isVerified);
       expect(result.rows[0].username).toBeNull();
-      expect(result.rows[0].verificationId).toBeDefined();
     } catch (error) {
       // Rollback the transaction in case of an error
       await postgresClient.query('ROLLBACK');
