@@ -17,6 +17,7 @@ import {
 } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
+import { RepoModule } from './repo/repo.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     EmailModule,
     UsersModule,
+    RepoModule,
   ],
   controllers: [AppController],
   providers: [
