@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,6 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { AuthResponseDto } from '../auth/dto/auth-response.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthGuard } from '../guards/auth.guards';
 
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
@@ -23,6 +25,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @ApiResponse({ status: 200, description: 'Fetch all users' })
+  @UseGuards(AuthGuard)
   @Get()
   async getAllUsers(): Promise<AuthResponseDto[]> {
     const users = await this.usersService.getAllUsers();
@@ -31,6 +34,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
@@ -66,6 +70,7 @@ export class UsersController {
 
   @ApiResponse({ status: 204, description: 'Deletes a user 🫠' })
   @HttpCode(204)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.usersService.remove(id);

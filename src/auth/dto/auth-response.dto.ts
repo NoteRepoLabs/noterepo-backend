@@ -17,9 +17,6 @@ export class AuthResponseDto {
 
   role: Role;
 
-  @Exclude()
-  verificationId: string;
-
   createdAt: Date;
 
   @Exclude()

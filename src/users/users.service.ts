@@ -10,6 +10,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { generateResetPasswordLink } from '../utils/generateLinks/generateResetPasswordLink';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../email/email.service';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +41,12 @@ export class UsersService {
       throw new NotFoundException('User with email not found.');
     }
 
-    const link = generateResetPasswordLink(user.id);
+    //Generate a reset token
+    const resetPassword = await this.prisma.resetPassword.create({
+      data: { token: uuid(), userId: user.id },
+    });
+
+    const link = generateResetPasswordLink(resetPassword.token);
 
     await this.email.sendResetPasswordMail(email, link);
 
@@ -48,17 +54,18 @@ export class UsersService {
   }
 
   async resetPassword(
-    id: string,
+    token: string,
     { password, confirmPassword }: ResetPasswordDto,
   ) {
-    const user = await this.prisma.user.findUnique({
+    const resetPassword = await this.prisma.resetPassword.findUnique({
       where: {
-        id,
+        token,
       },
     });
 
-    if (!user) {
-      throw new NotFoundException('User not found.');
+    //If no reset password link
+    if (!resetPassword) {
+      throw new NotFoundException('User not found');
     }
 
     if (password !== confirmPassword) {
@@ -67,12 +74,16 @@ export class UsersService {
       );
     }
 
+    //Hash new password
     const newPassword = await bcrypt.hash(password, 10);
 
     const updatedUser = this.prisma.user.update({
-      where: { id },
+      where: { id: resetPassword.userId },
       data: { password: newPassword },
     });
+
+    //Delete reset token from db
+    await this.prisma.resetPassword.delete({ where: { id: resetPassword.id } });
 
     return updatedUser;
   }

@@ -15,7 +15,7 @@ import { FastifyReply } from 'fastify';
 import { EmailService } from '../email/email.service';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { generateWelcomeLink } from '../utils/generateLinks/generateWelcomeLink';
-//import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -51,8 +51,13 @@ export class AuthService {
       data: { email: lowercaseEmail, password: hashPassword },
     });
 
+    //Store token in verification table
+    const verificationId = await this.prisma.verification.create({
+      data: { token: uuid(), userId: newUser.id },
+    });
+
     //Send verification link with verificationId generated automatically by the database
-    this.email.sendVerificationMail(newUser.email, newUser.verificationId);
+    this.email.sendVerificationMail(newUser.email, verificationId.token);
 
     this.logger.log('User registered successfully.');
 
@@ -77,8 +82,13 @@ export class AuthService {
 
     //Check if user account is verified
     if (!user.isVerified) {
+      //Get token from verification table
+      const verification = await this.prisma.verification.findUnique({
+        where: { userId: user.id },
+      });
+
       //Get user verification id not used yet and Send verification link
-      this.email.sendVerificationMail(user.email, user.verificationId);
+      this.email.sendVerificationMail(user.email, verification.token);
 
       throw new UnauthorizedException(
         `Your account is not verified, an email as be sent to ${user.email.replace(/(?<=^.{3})\w+/g, (match) => '*'.repeat(match.length))}`,
@@ -106,8 +116,6 @@ export class AuthService {
 
     //set cookie header
     this.cookie.sendCookie(token, res);
-    //For development purpose
-    this.cookie.sendDevCookie(token, res);
 
     this.logger.log('User signed in successfully');
 
@@ -118,27 +126,33 @@ export class AuthService {
   }
 
   //Verify Account
-  async verifyAccount(id: string, res: FastifyReply) {
+  async verifyAccount(token: string, res: FastifyReply) {
     //Find account with the verification id
-    const account = await this.prisma.user.findUnique({
+    const verificationToken = await this.prisma.verification.findUnique({
       where: {
-        verificationId: id,
+        token,
       },
     });
 
-    //If account is found redirect to signin page
-    if (!account) {
+    //If token is not found, then user is verified, redirect to signin page
+    if (!verificationToken) {
       return res.redirect(302, process.env.SIGN_IN_LINK);
     }
 
-    //If account found, verify user
+    //If token found, verify user
     const user = await this.prisma.user.update({
       where: {
-        verificationId: id,
+        id: verificationToken.userId,
       },
       data: { isVerified: true },
     });
 
+    //Delete token
+    await this.prisma.verification.delete({
+      where: { id: verificationToken.id },
+    });
+
+    //Generate Set username/welcome link
     const welcomeLink = generateWelcomeLink(user.id);
 
     return welcomeLink;
@@ -160,6 +174,7 @@ export class AuthService {
       throw new NotFoundException('Account not found.');
     }
 
+    //Check if username is already set
     if (account.username !== null) {
       throw new BadRequestException('Username already set');
     }
@@ -177,8 +192,6 @@ export class AuthService {
 
     //set cookie header
     this.cookie.sendCookie(token, res);
-    //For development purposes only
-    this.cookie.sendDevCookie(token, res);
 
     this.logger.log('Username set successfully.');
 
