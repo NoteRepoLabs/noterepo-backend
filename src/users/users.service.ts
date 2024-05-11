@@ -41,6 +41,7 @@ export class UsersService {
       throw new NotFoundException('User with email not found.');
     }
 
+    //Generate a reset token
     const resetPassword = await this.prisma.resetPassword.create({
       data: { token: uuid(), userId: user.id },
     });
@@ -80,6 +81,9 @@ export class UsersService {
       where: { id: resetPassword.userId },
       data: { password: newPassword },
     });
+
+    //Delete reset token from db
+    await this.prisma.resetPassword.delete({ where: { id: resetPassword.id } });
 
     return updatedUser;
   }
