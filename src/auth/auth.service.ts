@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
@@ -169,7 +171,7 @@ export class AuthService {
     });
 
     if (name) {
-      throw new BadRequestException('Username Already Exists');
+      throw new HttpException('Username Already Exists', HttpStatus.CONFLICT);
     }
 
     //Find Account
