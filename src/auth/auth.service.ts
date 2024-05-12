@@ -163,6 +163,15 @@ export class AuthService {
     { username }: SetUsernameDto,
     res: FastifyReply,
   ) {
+    //Check if user name exists already
+    const name = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (name) {
+      throw new BadRequestException('Username Already Exists');
+    }
+
     //Find Account
     const account = await this.prisma.user.findUnique({
       where: {
