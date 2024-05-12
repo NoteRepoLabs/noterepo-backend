@@ -53,4 +53,20 @@ export class RepoService {
 
     return repo;
   }
+
+  async deleteUserRepo(userId: string, repoId: string) {
+    const repo = await this.prisma.repo.findUnique({
+      where: { id: repoId, userId },
+    });
+
+    if (!repo) {
+      throw new NotFoundException(
+        'Repository not found or does not belong to the user',
+      );
+    }
+
+    await this.prisma.repo.delete({ where: { id: repoId } });
+
+    return;
+  }
 }
