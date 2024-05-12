@@ -71,4 +71,17 @@ export class RepoController {
     return plainToInstance(RepoResponseDto, response);
   }
 
+  @ApiOperation({ summary: 'Delete a repository of a user' })
+  @ApiResponse({
+    status: 204,
+    description: "Deletes a user's repo",
+  })
+  @HttpCode(204)
+  @Delete(':userId/repo/:repoId')
+  async deleteUserRepo(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('repoId', ParseUUIDPipe) repoId: string,
+  ) {
+    return await this.repoService.deleteUserRepo(userId, repoId);
+  }
 }
