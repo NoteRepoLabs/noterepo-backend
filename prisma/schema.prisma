@@ -14,15 +14,16 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  username   String?  @unique
-  email      String   @unique
+  id         String     @id @default(uuid())
+  username   String?    @unique
+  email      String     @unique
   password   String
-  isVerified Boolean  @default(false)
-  role       Role     @default(USER)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  isVerified Boolean    @default(false)
+  role       Role       @default(USER)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   Repo       Repo[]
+  Bookmarks  Bookmark[]
 }
 
 model Verification {
@@ -53,11 +54,11 @@ model Repo {
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  tag         Tag?
-  Note        Note[]
+  tags        Tag[]
+  files       File[]
 }
 
-model Note {
+model File {
   id          String @id @default(uuid())
   name        String
   description String
@@ -66,7 +67,14 @@ model Note {
 }
 
 model Tag {
-  tags   String[]
-  repo   Repo     @relation(fields: [repoId], references: [id])
-  repoId String   @unique
+  name   String  @id
+  Repo   Repo?   @relation(fields: [repoId], references: [id])
+  repoId String?
+}
+
+model Bookmark {
+  id      String   @id @default(uuid())
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String   @unique
+  repoIds String[]
 }
