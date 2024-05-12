@@ -14,7 +14,7 @@ import { CreateRepoDto } from './dto/create-repo.dto';
 import { plainToInstance } from 'class-transformer';
 import { RepoResponseDto } from './dto/repo-response.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from 'src/guards/auth.guards';
+import { AuthGuard } from '../guards/auth.guards';
 
 @ApiTags('Repository')
 @UseGuards(AuthGuard)
