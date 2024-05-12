@@ -9,7 +9,7 @@ import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwt: JwtService) {}
+  constructor(private readonly jwt: JwtService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -32,7 +32,7 @@ export class AuthGuard implements CanActivate {
 
   private extractTokenFromCookie(req: FastifyRequest): string | undefined {
     const token = req.cookies.authtoken;
-    console.log(`Cookie token ${token}`);
+    //console.log(`Cookie token ${token}`);
     return token;
   }
 }

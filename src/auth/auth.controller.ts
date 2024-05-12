@@ -15,7 +15,7 @@ import { SignInDto, signInSchema } from './dto/sign-in.dto';
 import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUsernameDto } from './dto/set-username.dto';
 
 @ApiTags('Auth')
@@ -23,6 +23,7 @@ import { SetUsernameDto } from './dto/set-username.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+  @ApiOperation({ summary: 'Register a new user' })
   @Post('sign-up')
   @ApiResponse({
     status: 201,
@@ -43,6 +44,7 @@ export class AuthController {
     return plainToInstance(AuthResponseDto, response);
   }
 
+  @ApiOperation({ summary: 'Sign in user' })
   @Post('sign-in')
   @ApiResponse({
     status: 200,
@@ -68,6 +70,7 @@ export class AuthController {
     return plainToInstance(AuthResponseDto, response);
   }
 
+  @ApiOperation({ summary: 'Verify user account' })
   @Get('verifyAccount/:userId')
   @ApiResponse({
     status: 302,
@@ -92,6 +95,7 @@ export class AuthController {
     return res.redirect(302, welcomeLink);
   }
 
+  @ApiOperation({ summary: 'Set initial username' })
   @Post('setInitialUsername/:userId')
   @ApiResponse({
     status: 200,
