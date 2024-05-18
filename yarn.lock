@@ -547,6 +547,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/busboy@npm:^2.1.0":
+  version: 2.1.1
+  resolution: "@fastify/busboy@npm:2.1.1"
+  checksum: 10c0/6f8027a8cba7f8f7b736718b013f5a38c0476eea67034c94a0d3c375e2b114366ad4419e6a6fa7ffc2ef9c6d3e0435d76dd584a7a1cbac23962fda7650b579e3
+  languageName: node
+  linkType: hard
+
 "@fastify/cookie@npm:^9.3.1":
   version: 9.3.1
   resolution: "@fastify/cookie@npm:9.3.1"
@@ -567,7 +574,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/error@npm:^3.2.0, @fastify/error@npm:^3.3.0, @fastify/error@npm:^3.4.0":
+"@fastify/deepmerge@npm:^1.0.0":
+  version: 1.3.0
+  resolution: "@fastify/deepmerge@npm:1.3.0"
+  checksum: 10c0/8115ed7b891189ee4ebba554a105cb69111615bdb2961f8c58a80872fac9d7b74b2c6317d545a7d378325d094ce73a91fc9c5d7d6189476779cd5a5493cb1351
+  languageName: node
+  linkType: hard
+
+"@fastify/error@npm:^3.0.0, @fastify/error@npm:^3.2.0, @fastify/error@npm:^3.3.0, @fastify/error@npm:^3.4.0":
   version: 3.4.1
   resolution: "@fastify/error@npm:3.4.1"
   checksum: 10c0/1f1a0faa8c86639afb6f4bd47a9cdc1f0f20ce0d6944340fbdec8218aaba91dc9cae9ed78e24e61bceb782a867efda2b9a6320091f00dcbb896d9c8a9bdf5f96
@@ -621,6 +635,20 @@ __metadata:
     path-to-regexp: "npm:^6.1.0"
     reusify: "npm:^1.0.4"
   checksum: 10c0/8cb39ce3f203c66de9ce40eb2cc7324fd3d79fb78872a6b7dcfb0b7cbb7b02e349d710520b7ecb100d8e4bc396fbc7596a0bee9514e8a9f832d171ac3ae572cd
+  languageName: node
+  linkType: hard
+
+"@fastify/multipart@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@fastify/multipart@npm:8.2.0"
+  dependencies:
+    "@fastify/busboy": "npm:^2.1.0"
+    "@fastify/deepmerge": "npm:^1.0.0"
+    "@fastify/error": "npm:^3.0.0"
+    fastify-plugin: "npm:^4.0.0"
+    secure-json-parse: "npm:^2.4.0"
+    stream-wormhole: "npm:^1.1.0"
+  checksum: 10c0/2320fef4ec3aa92200330a51fccce0fa81127da5512d901c44468b201f8c9cd468ee9caec89a17631e6edee6c96c4c612eec5f157b10878b3faf789e8f4fc877
   languageName: node
   linkType: hard
 
@@ -1585,6 +1613,15 @@ __metadata:
     "@types/connect": "npm:*"
     "@types/node": "npm:*"
   checksum: 10c0/aebeb200f25e8818d8cf39cd0209026750d77c9b85381cdd8deeb50913e4d18a1ebe4b74ca9b0b4d21952511eeaba5e9fbbf739b52731a2061e206ec60d568df
+  languageName: node
+  linkType: hard
+
+"@types/buffer-to-stream@npm:^1":
+  version: 1.0.3
+  resolution: "@types/buffer-to-stream@npm:1.0.3"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/85cf3db5b1b0d72366ad5d81861d2cfbfe465309bd16e95e6fee7ac24d168ff9c21353340f4975a972e9ada4d25223a3c8a962c7bc6520856939d53af0b1e83d
   languageName: node
   linkType: hard
 
@@ -2910,6 +2947,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"buffer-to-stream@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "buffer-to-stream@npm:1.0.0"
+  checksum: 10c0/e8c0d6c1536906d6ce05570d8c15fa26ea7f10aed74af67ee06cbecfe3e160920ac9223db7f721f9f3bf1bea53aeafbe50540774417a66aa050011bde1f46aee
+  languageName: node
+  linkType: hard
+
 "buffer@npm:^5.5.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
@@ -3189,6 +3233,16 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: 10c0/2176952b3649293473999a95d7bebfc9dc96410f6cbd3d2595cf12fd401f63a4bf41a7adbfd3ab2ff09ed60cb9870c58c6acdd18b87767366fabfc163700f13b
+  languageName: node
+  linkType: hard
+
+"cloudinary@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "cloudinary@npm:2.2.0"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    q: "npm:^1.5.1"
+  checksum: 10c0/e9d2d23574c1b416060e67f465859ab4399796cac3fa3b911c0e28427053e988f0614baf9512383eb7e9e22aeb99e77cd76a392547bb6c7ea022cbfaaf0a9bf0
   languageName: node
   linkType: hard
 
@@ -6893,6 +6947,7 @@ __metadata:
   dependencies:
     "@fastify/cookie": "npm:^9.3.1"
     "@fastify/helmet": "npm:^11.1.1"
+    "@fastify/multipart": "npm:^8.2.0"
     "@fastify/static": "npm:^7.0.3"
     "@nestjs/cli": "npm:^10.0.0"
     "@nestjs/common": "npm:^10.0.0"
@@ -6908,6 +6963,7 @@ __metadata:
     "@prisma/client": "npm:^5.13.0"
     "@testcontainers/postgresql": "npm:^10.9.0"
     "@types/bcrypt": "npm:^5.0.2"
+    "@types/buffer-to-stream": "npm:^1"
     "@types/express": "npm:^4.17.17"
     "@types/jest": "npm:^29.5.2"
     "@types/jsonwebtoken": "npm:^9.0.6"
@@ -6918,7 +6974,9 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.0.0"
     "@typescript-eslint/parser": "npm:^6.0.0"
     bcrypt: "npm:^5.1.1"
+    buffer-to-stream: "npm:^1.0.0"
     class-transformer: "npm:^0.5.1"
+    cloudinary: "npm:^2.2.0"
     colors: "npm:^1.4.0"
     cross-env: "npm:^7.0.3"
     ejs: "npm:^3.1.9"
@@ -7659,6 +7717,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"q@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "q@npm:1.5.1"
+  checksum: 10c0/7855fbdba126cb7e92ef3a16b47ba998c0786ec7fface236e3eb0135b65df36429d91a86b1fff3ab0927b4ac4ee88a2c44527c7c3b8e2a37efbec9fe34803df4
+  languageName: node
+  linkType: hard
+
 "qs@npm:6.11.0":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
@@ -8046,7 +8111,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secure-json-parse@npm:^2.7.0":
+"secure-json-parse@npm:^2.4.0, secure-json-parse@npm:^2.7.0":
   version: 2.7.0
   resolution: "secure-json-parse@npm:2.7.0"
   checksum: 10c0/f57eb6a44a38a3eeaf3548228585d769d788f59007454214fab9ed7f01fbf2e0f1929111da6db28cf0bcc1a2e89db5219a59e83eeaec3a54e413a0197ce879e4
@@ -8402,6 +8467,13 @@ __metadata:
   version: 1.5.0
   resolution: "statuses@npm:1.5.0"
   checksum: 10c0/e433900956357b3efd79b1c547da4d291799ac836960c016d10a98f6a810b1b5c0dcc13b5a7aa609a58239b5190e1ea176ad9221c2157d2fd1c747393e6b2940
+  languageName: node
+  linkType: hard
+
+"stream-wormhole@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "stream-wormhole@npm:1.1.0"
+  checksum: 10c0/50800bcc919c01085b0bafa175c61a0c0bec27987dcc20aec92f8125bdc8b191102a030e114760d2ac86265eea65627d0145eea3adb8cb4453b3295e4468661a
   languageName: node
   linkType: hard
 
