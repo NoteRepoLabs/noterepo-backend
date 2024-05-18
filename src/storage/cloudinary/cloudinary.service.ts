@@ -1,7 +1,6 @@
 import { MultipartFile } from '@fastify/multipart';
 import { Injectable } from '@nestjs/common';
 import { UploadApiResponse, v2 } from 'cloudinary';
-//import toStream = require('buffer-to-stream');
 
 @Injectable()
 export class CloudinaryService {
