@@ -1616,15 +1616,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/buffer-to-stream@npm:^1":
-  version: 1.0.3
-  resolution: "@types/buffer-to-stream@npm:1.0.3"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/85cf3db5b1b0d72366ad5d81861d2cfbfe465309bd16e95e6fee7ac24d168ff9c21353340f4975a972e9ada4d25223a3c8a962c7bc6520856939d53af0b1e83d
-  languageName: node
-  linkType: hard
-
 "@types/connect@npm:*":
   version: 3.4.38
   resolution: "@types/connect@npm:3.4.38"
@@ -2944,13 +2935,6 @@ __metadata:
   version: 1.1.2
   resolution: "buffer-from@npm:1.1.2"
   checksum: 10c0/124fff9d66d691a86d3b062eff4663fe437a9d9ee4b47b1b9e97f5a5d14f6d5399345db80f796827be7c95e70a8e765dd404b7c3ff3b3324f98e9b0c8826cc34
-  languageName: node
-  linkType: hard
-
-"buffer-to-stream@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "buffer-to-stream@npm:1.0.0"
-  checksum: 10c0/e8c0d6c1536906d6ce05570d8c15fa26ea7f10aed74af67ee06cbecfe3e160920ac9223db7f721f9f3bf1bea53aeafbe50540774417a66aa050011bde1f46aee
   languageName: node
   linkType: hard
 
@@ -6963,7 +6947,6 @@ __metadata:
     "@prisma/client": "npm:^5.13.0"
     "@testcontainers/postgresql": "npm:^10.9.0"
     "@types/bcrypt": "npm:^5.0.2"
-    "@types/buffer-to-stream": "npm:^1"
     "@types/express": "npm:^4.17.17"
     "@types/jest": "npm:^29.5.2"
     "@types/jsonwebtoken": "npm:^9.0.6"
@@ -6974,7 +6957,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.0.0"
     "@typescript-eslint/parser": "npm:^6.0.0"
     bcrypt: "npm:^5.1.1"
-    buffer-to-stream: "npm:^1.0.0"
     class-transformer: "npm:^0.5.1"
     cloudinary: "npm:^2.2.0"
     colors: "npm:^1.4.0"
