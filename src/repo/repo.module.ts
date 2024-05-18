@@ -10,4 +10,4 @@ import { CookieService } from 'src/cookie/cookie.service';
   providers: [RepoService, JwtService, CookieService],
   imports: [PrismaModule],
 })
-export class RepoModule { }
+export class RepoModule {}
