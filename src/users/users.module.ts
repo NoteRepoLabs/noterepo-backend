@@ -5,9 +5,10 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { EmailModule } from '../email/email.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from 'src/jwt/jwt.service';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
-  imports: [PrismaModule, EmailModule],
+  imports: [PrismaModule, EmailModule, StorageModule],
   controllers: [UsersController],
   providers: [UsersService, PrismaService, JwtService],
 })
