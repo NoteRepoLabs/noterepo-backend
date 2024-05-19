@@ -27,7 +27,7 @@ export class FilesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
-  ) {}
+  ) { }
   async uploadFile(req: FastifyRequest, userId: string, repoId: string) {
     const file = await req.file();
 
@@ -82,13 +82,13 @@ export class FilesService {
     const newFileName = `${name}_${timestamp}.${type}`;
 
     //Upload file
-    const uploadFileResult = await this.cloudinary.UploadFile(
+    const uploadFileResult = await this.cloudinary.uploadFile(
       file,
       newFileName,
       user.username,
     );
 
-    //Store fileUrl based on environment
+    //Store type of fileUrl based on environment
     const fileUrl =
       process.env.NODE_ENV === 'development'
         ? uploadFileResult.url
@@ -107,7 +107,8 @@ export class FilesService {
     return savedFile;
   }
 
-  async deleteFiles(userId: string, repoId: string, fileId: string) {
+  //Delete a file from repo
+  async deleteAFile(userId: string, repoId: string, fileId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -129,8 +130,8 @@ export class FilesService {
       throw new NotFoundException('File not found');
     }
 
-    //Deletefile from storage bucket
-    await this.cloudinary.DeleteFile(fileExists.publicName);
+    //Delete a file from storage bucket
+    await this.cloudinary.deleteFile(fileExists.publicName);
 
     //Disconnect relation and delete file
     await this.prisma.$transaction([
@@ -139,6 +140,51 @@ export class FilesService {
         data: { files: { disconnect: { id: fileId } } },
       }),
       this.prisma.file.delete({ where: { id: fileId } }),
+    ]);
+
+    return;
+  }
+
+  //Delete multiple files in a repo
+  async deleteFiles(userId: string, repoId: string, fileIds: string[]) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const repo = await this.prisma.repo.findUnique({
+      where: { id: repoId },
+    });
+
+    if (!repo) {
+      throw new NotFoundException('Repo not found');
+    }
+
+    const files = await this.prisma.file.findMany({
+      where: { id: { in: fileIds } },
+    });
+
+    if (!files) {
+      throw new NotFoundException('Files not found');
+    }
+
+    const fileNames: string[] = [];
+
+    //Get the names
+    files.forEach((file) => fileNames.push(file.publicName));
+
+    //Delete files from storage bucket
+    await this.cloudinary.deleteFiles(fileNames);
+
+    //Disconnect files relations and delete files
+    await this.prisma.$transaction([
+      this.prisma.repo.update({
+        where: { id: repoId },
+        data: { files: { deleteMany: { id: { in: fileIds } } } },
+        include: { files: true },
+      }),
+      this.prisma.file.deleteMany({ where: { id: { in: fileIds } } }),
     ]);
 
     return;
