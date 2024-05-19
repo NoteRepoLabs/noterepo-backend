@@ -11,12 +11,14 @@ import { generateResetPasswordLink } from '../utils/generateLinks/generateResetP
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../email/email.service';
 import { v4 as uuid } from 'uuid';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly cloudinary: CloudinaryService,
   ) { }
 
   //Development only
@@ -90,7 +92,60 @@ export class UsersService {
 
   //Removes a user
   async remove(id: string) {
-    await this.prisma.user.delete({ where: { id: id } });
+    const user = await this.prisma.user.findUnique({ where: { id: id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const resetToken = await this.prisma.resetPassword.findUnique({
+      where: { userId: id },
+    });
+
+    if (resetToken) {
+      await this.prisma.resetPassword.delete({ where: { userId: id } });
+    }
+
+    const verificationToken = await this.prisma.verification.findUnique({
+      where: { userId: id },
+    });
+
+    if (verificationToken) {
+      await this.prisma.verification.delete({ where: { userId: id } });
+    }
+
+    const repos = await this.prisma.repo.findMany({ where: { userId: id } });
+
+    if (repos) {
+      const repoIds: string[] = [];
+
+      repos.forEach((repo) => repoIds.push(repo.id));
+
+      const files = await this.prisma.file.findMany({
+        where: { repoId: { in: repoIds } },
+      });
+
+      if (files) {
+        const fileNames: string[] = [];
+
+        files.forEach((file) => fileNames.push(file.publicName));
+
+        await this.cloudinary.deleteFiles(fileNames);
+
+        await this.cloudinary.deleteUserFolder(user.username);
+
+        console.log('User files and folder deleted');
+      }
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: id },
+        data: { Repo: { deleteMany: {} } },
+        include: { Repo: true },
+      }),
+      this.prisma.user.delete({ where: { id: id } }),
+    ]);
     return;
   }
 

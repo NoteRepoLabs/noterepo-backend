@@ -14,10 +14,10 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../../guards/auth.guards';
 
 @UseGuards(AuthGuard)
-@ApiTags('Repository')
+@ApiTags('Files')
 @Controller({ path: 'users', version: '1' })
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(private readonly filesService: FilesService) { }
 
   @Post(':userId/repo/:repoId/file')
   @ApiOperation({ summary: 'Uploads a single file to a repo' })
@@ -49,6 +49,17 @@ export class FilesController {
     @Param('userId', ParseUUIDPipe) userId: string,
     @Param('repoId', ParseUUIDPipe) repoId: string,
     @Param('fileId', ParseUUIDPipe) fileId: string,
+  ) {
+    return await this.filesService.deleteAFile(userId, repoId, fileId);
+  }
+
+  @Delete(':userId/repo/:repoId/files/:fileId')
+  @ApiOperation({ summary: 'Deletes a multiple files from a repo' })
+  @HttpCode(204)
+  async deleteFiles(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('repoId', ParseUUIDPipe) repoId: string,
+    @Param('fileId', ParseUUIDPipe) fileId: string[],
   ) {
     return await this.filesService.deleteFiles(userId, repoId, fileId);
   }

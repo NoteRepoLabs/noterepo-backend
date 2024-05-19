@@ -6,10 +6,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 @Injectable()
 export class RepoService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinary: CloudinaryService,
+  ) { }
 
   async createRepo(
     userId: string,
@@ -58,6 +62,7 @@ export class RepoService {
   async deleteUserRepo(userId: string, repoId: string) {
     const repo = await this.prisma.repo.findUnique({
       where: { id: repoId, userId },
+      include: { files: true },
     });
 
     if (!repo) {
@@ -66,10 +71,20 @@ export class RepoService {
       );
     }
 
+    //For storing file names
+    const fileNames: string[] = [];
+
+    repo.files.forEach((file) => fileNames.push(file.publicName));
+
+    //Delete all files from cloudinary, to be implemented
+    await this.cloudinary.deleteFiles(fileNames);
+
+    //Delete all file relations to repo and delete repo
     await this.prisma.$transaction([
-      this.prisma.user.update({
+      this.prisma.repo.update({
         where: { id: userId },
-        data: { Repo: { disconnect: { id: repoId } } },
+        data: { files: { deleteMany: {} } },
+        include: { files: true },
       }),
       this.prisma.repo.delete({ where: { id: repoId } }),
     ]);
