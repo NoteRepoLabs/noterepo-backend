@@ -42,6 +42,7 @@ export class RepoService {
   async getUserRepo(userId: string) {
     const repo = await this.prisma.repo.findMany({
       where: { user: { id: userId } },
+      include: { files: true },
     });
 
     if (!repo) {
@@ -65,7 +66,13 @@ export class RepoService {
       );
     }
 
-    await this.prisma.repo.delete({ where: { id: repoId } });
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { Repo: { disconnect: { id: repoId } } },
+      }),
+      this.prisma.repo.delete({ where: { id: repoId } }),
+    ]);
 
     return;
   }

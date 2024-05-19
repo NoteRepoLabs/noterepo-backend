@@ -15,6 +15,8 @@ export class RepoResponseDto {
 
   isPublic: boolean;
 
+  files: unknown;
+
   createdAt: Date;
 
   @Exclude()
