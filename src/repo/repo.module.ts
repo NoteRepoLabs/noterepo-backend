@@ -4,10 +4,11 @@ import { RepoController } from './repo.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtService } from 'src/jwt/jwt.service';
 import { CookieService } from 'src/cookie/cookie.service';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
   controllers: [RepoController],
   providers: [RepoService, JwtService, CookieService],
-  imports: [PrismaModule],
+  imports: [PrismaModule, StorageModule],
 })
-export class RepoModule {}
+export class RepoModule { }
