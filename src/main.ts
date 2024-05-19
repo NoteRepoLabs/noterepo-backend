@@ -32,6 +32,7 @@ async function bootstrap() {
       'https://noterepo-web.vercel.app',
       'http://localhost:3456',
     ],
+    methods: "'GET','POST','PATCH','DELETE','PUT'",
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(
