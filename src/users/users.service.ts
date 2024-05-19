@@ -11,7 +11,7 @@ import { generateResetPasswordLink } from '../utils/generateLinks/generateResetP
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../email/email.service';
 import { v4 as uuid } from 'uuid';
-import { CloudinaryService } from 'src/storage/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
-import { CloudinaryService } from 'src/storage/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 @Injectable()
 export class RepoService {
