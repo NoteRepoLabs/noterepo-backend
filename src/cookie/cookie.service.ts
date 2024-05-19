@@ -4,15 +4,9 @@ import { FastifyReply } from 'fastify';
 @Injectable()
 export class CookieService {
   sendCookie(value: string, res: FastifyReply) {
-    const isDevEnv = process.env.NODE_ENV == 'development';
-    console.log('[DEV MODE]:', isDevEnv);
-
     return res.cookie('authtoken', value, {
-      httpOnly: true,
-      secure: !isDevEnv,
-      sameSite: isDevEnv ? 'lax' : 'none',
-      path: '/',
-      domain: isDevEnv ? 'localhost' : undefined,
+      secure: true,
+      sameSite: 'none',
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
     });
   }
