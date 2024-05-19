@@ -18,6 +18,7 @@ import { AppModule } from './app.module';
 import { ResponseInterceptor } from './utils/response/response.interceptor';
 import { logger } from './utils/requestLogger/request.logger';
 import fastifyHelmet from '@fastify/helmet';
+import multiPart from '@fastify/multipart';
 
 async function bootstrap() {
   //Fastify Adapter
@@ -71,6 +72,9 @@ async function bootstrap() {
       path: '/',
     },
   });
+
+  //For request file processing
+  await app.register(multiPart, { limits: { fileSize: 83886080 } }); //filesize limit of 80MB
 
   //For request logging
   app.use(logger());
