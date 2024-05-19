@@ -7,6 +7,7 @@ export class CookieService {
     return res.cookie('authtoken', value, {
       secure: true,
       sameSite: 'none',
+      domain: 'https://www.noterepo.com.ng',
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
     });
   }
