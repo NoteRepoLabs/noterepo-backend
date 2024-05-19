@@ -5,6 +5,7 @@ import { FastifyReply } from 'fastify';
 export class CookieService {
   sendCookie(value: string, res: FastifyReply) {
     const isDevEnv = process.env.NODE_ENV == 'development';
+    console.log('[DEV MODE]:', isDevEnv);
 
     return res.cookie('authtoken', value, {
       httpOnly: true,
