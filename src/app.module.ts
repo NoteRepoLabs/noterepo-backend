@@ -44,6 +44,9 @@ import { FilesModule } from './repo/files/files.module';
         MAIL_DOMAIN: Joi.string().required(),
         TEST_MAIL_DOMAIN: Joi.string().required(),
         REDIS_URI: Joi.string().required(),
+        CLOUD_NAME: Joi.string().required(),
+        CLOUDINARY_API_KEY: Joi.string().required(),
+        CLOUDINARY_SECRET: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,

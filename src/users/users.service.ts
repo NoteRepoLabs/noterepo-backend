@@ -151,7 +151,11 @@ export class UsersService {
 
   //Only for prelaunch development purposes and should not be touched.
   async removeAllUsers() {
-    await this.prisma.user.deleteMany({});
+    await this.prisma.$transaction([
+      this.prisma.resetPassword.deleteMany({}),
+      this.prisma.verification.deleteMany({}),
+      this.prisma.user.deleteMany({}),
+    ]);
     return;
   }
 }
