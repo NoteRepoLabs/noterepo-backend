@@ -1,6 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from './guards/auth.guards';
 
 @ApiTags('Version')
 @Controller('v1')
@@ -11,5 +12,21 @@ export class AppController {
   @Get()
   getHello(): object {
     return this.appService.getHello();
+  }
+
+  @ApiResponse({ status: 200, description: "returns server's health status" })
+  @Get('/health')
+  checkHealth() {
+    return this.appService.checkHealth();
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: "Returns user's authentication status",
+  })
+  @UseGuards(AuthGuard)
+  @Get('/check-session')
+  checkSession(): string {
+    return this.appService.checkSession();
   }
 }
