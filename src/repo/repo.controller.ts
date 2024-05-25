@@ -15,6 +15,10 @@ import { plainToInstance } from 'class-transformer';
 import { RepoResponseDto } from './dto/repo-response.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../guards/auth.guards';
+import {
+  bookmarkRepoIdsResponseDto,
+  bookmarkResponseDto,
+} from './dto/bookmark-response.dto';
 
 @ApiTags('Repository')
 @UseGuards(AuthGuard)
@@ -69,6 +73,70 @@ export class RepoController {
     const response = await this.repoService.getUserRepo(userId);
 
     return plainToInstance(RepoResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Bookmark a repository of a user' })
+  @ApiResponse({
+    status: 201,
+    description: "Fetches a user's bookmark record",
+  })
+  @Post(':userId/repo/:repoId/bookmark')
+  async bookmarkRepo(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('repoId', ParseUUIDPipe) repoId: string,
+  ): Promise<bookmarkResponseDto> {
+    const response = await this.repoService.bookmarkRepo(userId, repoId);
+
+    return plainToInstance(bookmarkResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Unbookmark a repository of a user' })
+  @ApiResponse({
+    status: 204,
+    description: 'Deletes the bookmark record',
+    type: RepoResponseDto,
+  })
+  @HttpCode(204)
+  @Delete(':userId/repo/:repoId/bookmark')
+  async unbookmarkRepo(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('repoId', ParseUUIDPipe) repoId: string,
+  ): Promise<RepoResponseDto> {
+    await this.repoService.unbookmarkRepo(userId, repoId);
+
+    return;
+  }
+
+  @ApiOperation({ summary: 'Fetch all bookmarks of a specific user' })
+  @ApiResponse({
+    status: 200,
+    description: "Fetches a user's bookmarks",
+    type: RepoResponseDto,
+    isArray: true,
+  })
+  @Get(':userId/bookmarks')
+  async getBookmarks(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<RepoResponseDto[]> {
+    const response = await this.repoService.getBookmarks(userId);
+
+    return plainToInstance(RepoResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Fetch all bookmarked repo ids of a specific user' })
+  @ApiResponse({
+    status: 200,
+    description: "Fetches a user's bookmarked repos ids",
+    type: RepoResponseDto,
+    isArray: true,
+  })
+  @Get(':userId/bookmarks/repoIds')
+  async getBookmarksRepoIds(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<bookmarkRepoIdsResponseDto> {
+    const response = await this.repoService.getBookmarksRepoIds(userId);
+
+    return plainToInstance(bookmarkRepoIdsResponseDto, response);
   }
 
   @ApiOperation({ summary: 'Delete a repository of a user' })

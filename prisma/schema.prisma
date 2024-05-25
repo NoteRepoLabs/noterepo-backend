@@ -14,16 +14,16 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(uuid())
-  username   String?   @unique
-  email      String    @unique
+  id         String     @id @default(uuid())
+  username   String?    @unique
+  email      String     @unique
   password   String
-  isVerified Boolean   @default(false)
-  role       Role      @default(USER)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  isVerified Boolean    @default(false)
+  role       Role       @default(USER)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   Repo       Repo[]
-  Bookmark   Bookmark?
+  bookmarks  Bookmark[]
 }
 
 model Verification {
@@ -54,29 +54,26 @@ model Repo {
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  tags        Tag[]
+  tags        String[]
   files       File[]
-  bookmarked  Boolean  @default(false)
 }
 
 model File {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
   publicName String
   urlLink    String
-  repo       Repo   @relation(fields: [repoId], references: [id])
+  createdAt  DateTime @default(now())
+  repo       Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
   repoId     String
 }
 
-model Tag {
-  name   String @id
-  Repo   Repo   @relation(fields: [repoId], references: [id])
-  repoId String
-}
-
 model Bookmark {
-  id      String   @id @default(uuid())
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  String   @unique
-  repoIds String[]
+  id        String   @id @default(uuid())
+  userId    String
+  repoId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, repoId])
 }

@@ -17,6 +17,8 @@ export class RepoResponseDto {
 
   files: unknown;
 
+  tags: string[];
+
   createdAt: Date;
 
   @Exclude()
