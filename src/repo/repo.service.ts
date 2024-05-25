@@ -75,22 +75,26 @@ export class RepoService {
     const fileNames: string[] = [];
 
     repo.files.forEach((file) => fileNames.push(file.publicName));
+  async unbookmarkRepo(userId: string, repoId: string) {
+    const repo = await this.prisma.repo.findUnique({
+      where: { id: repoId },
+    });
 
-    //Delete all files from cloudinary, to be implemented
-    await this.cloudinary.deleteFiles(fileNames);
+    if (!repo) {
+      throw new NotFoundException('Repo not found');
+    }
 
-    //Delete all file relations to repo and delete repo
     await this.prisma.$transaction([
-      this.prisma.repo.update({
+      this.prisma.user.update({
         where: { id: userId },
-        data: { files: { deleteMany: {} } },
-        include: { files: true },
+        data: { bookmarks: { disconnect: { id: repoId } } },
       }),
-      this.prisma.repo.delete({ where: { id: repoId } }),
+      this.prisma.bookmark.delete({ where: { id: repoId } }),
     ]);
 
     return;
   }
+
   async getBookmarks(userId: string) {
     const bookmarks = await this.prisma.bookmark.findMany({
       where: { userId },
