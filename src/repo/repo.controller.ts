@@ -15,6 +15,10 @@ import { plainToInstance } from 'class-transformer';
 import { RepoResponseDto } from './dto/repo-response.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../guards/auth.guards';
+import {
+  bookmarkRepoIdsResponseDto,
+  bookmarkResponseDto,
+} from './dto/bookmark-response.dto';
 
 @ApiTags('Repository')
 @UseGuards(AuthGuard)
@@ -69,6 +73,21 @@ export class RepoController {
     const response = await this.repoService.getUserRepo(userId);
 
     return plainToInstance(RepoResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Bookmark a repository of a user' })
+  @ApiResponse({
+    status: 201,
+    description: "Fetches a user's bookmark record",
+  })
+  @Post(':userId/repo/:repoId/bookmark')
+  async bookmarkRepo(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('repoId', ParseUUIDPipe) repoId: string,
+  ): Promise<bookmarkResponseDto> {
+    const response = await this.repoService.bookmarkRepo(userId, repoId);
+
+    return plainToInstance(bookmarkResponseDto, response);
   }
 
   @ApiOperation({ summary: 'Delete a repository of a user' })
