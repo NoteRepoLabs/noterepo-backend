@@ -90,6 +90,23 @@ export class RepoController {
     return plainToInstance(bookmarkResponseDto, response);
   }
 
+  @ApiOperation({ summary: 'Unbookmark a repository of a user' })
+  @ApiResponse({
+    status: 204,
+    description: 'Deletes the bookmark record',
+    type: RepoResponseDto,
+  })
+  @HttpCode(204)
+  @Delete(':userId/repo/:repoId/bookmark')
+  async unbookmarkRepo(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('repoId', ParseUUIDPipe) repoId: string,
+  ): Promise<RepoResponseDto> {
+    await this.repoService.unbookmarkRepo(userId, repoId);
+
+    return;
+  }
+
   @ApiOperation({ summary: 'Delete a repository of a user' })
   @ApiResponse({
     status: 204,
