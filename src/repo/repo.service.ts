@@ -91,4 +91,48 @@ export class RepoService {
 
     return;
   }
+  async deleteUserRepo(userId: string, repoId: string) {
+    const repo = await this.prisma.repo.findUnique({
+      where: { id: repoId, userId },
+      include: { files: true },
+    });
+
+    if (!repo) {
+      throw new NotFoundException(
+        'Repository not found or does not belong to the user',
+      );
+    }
+
+    //If user has files
+    if (repo.files.length > 0) {
+      //For storing file names
+      const fileNames: string[] = [];
+
+      repo.files.forEach((file) => fileNames.push(file.publicName));
+
+      //Delete all file relations to repo and delete repo
+      await this.prisma.$transaction([
+        this.prisma.repo.update({
+          where: { id: repoId },
+          data: { files: { deleteMany: {} } },
+          include: { files: true },
+        }),
+        this.prisma.user.update({
+          where: { id: userId },
+          data: { Repo: { delete: { id: repoId } } },
+        }),
+      ]);
+
+      //Delete all files from cloudinary, to be implemented
+      await this.cloudinary.deleteFiles(fileNames);
+    } else {
+      //Delete only the repo
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { Repo: { delete: { id: repoId } } },
+      });
+    }
+
+    return;
+  }
 }
