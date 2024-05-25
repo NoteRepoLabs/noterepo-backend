@@ -91,6 +91,27 @@ export class RepoService {
 
     return;
   }
+  async getBookmarks(userId: string) {
+    const bookmarks = await this.prisma.bookmark.findMany({
+      where: { userId },
+      select: { repoId: true },
+    });
+
+    if (!bookmarks) {
+      throw new NotFoundException('No bookmarks found');
+    }
+
+    const bookmarkIds: string[] = [];
+
+    bookmarks.forEach((bookmark) => bookmarkIds.push(bookmark.repoId));
+
+    const bookmarkedRepos = await this.prisma.repo.findMany({
+      where: { id: { in: bookmarkIds } },
+    });
+
+    return bookmarkedRepos;
+  }
+
   async getBookmarksRepoIds(userId: string) {
     const bookmarks = await this.prisma.bookmark.findMany({
       where: { userId },
