@@ -25,6 +25,15 @@ export class CreateRepoDto {
   description: string;
 
   @ApiProperty({
+    example: '[phs121, physics]',
+    minLength: 1,
+    description: 'Tags of the repo',
+    required: true,
+  })
+  @JoiSchema(Joi.array().min(1).messages(joiMessages).required())
+  tags: string[];
+
+  @ApiProperty({
     example: false,
     enum: [true, false],
     description: 'Repo visibility',
