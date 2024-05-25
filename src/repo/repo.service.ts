@@ -17,7 +17,7 @@ export class RepoService {
 
   async createRepo(
     userId: string,
-    { name, description, isPublic }: CreateRepoDto,
+    { name, description, tags, isPublic }: CreateRepoDto,
   ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
@@ -26,7 +26,13 @@ export class RepoService {
     }
 
     const repo = await this.prisma.repo.create({
-      data: { name, description, isPublic, user: { connect: { id: userId } } },
+      data: {
+        name,
+        description,
+        isPublic,
+        tags,
+        user: { connect: { id: userId } },
+      },
       include: { user: false },
     });
 
@@ -59,22 +65,22 @@ export class RepoService {
     return repo;
   }
 
-  async deleteUserRepo(userId: string, repoId: string) {
+  async bookmarkRepo(userId: string, repoId: string) {
     const repo = await this.prisma.repo.findUnique({
-      where: { id: repoId, userId },
-      include: { files: true },
+      where: { id: repoId },
     });
 
     if (!repo) {
-      throw new NotFoundException(
-        'Repository not found or does not belong to the user',
-      );
+      throw new NotFoundException('Repo not found');
     }
 
-    //For storing file names
-    const fileNames: string[] = [];
+    const bookmarked = await this.prisma.bookmark.create({
+      data: { repoId, user: { connect: { id: userId } } },
+    });
 
-    repo.files.forEach((file) => fileNames.push(file.publicName));
+    return bookmarked;
+  }
+
   async unbookmarkRepo(userId: string, repoId: string) {
     const repo = await this.prisma.repo.findUnique({
       where: { id: repoId },
