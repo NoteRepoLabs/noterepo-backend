@@ -107,6 +107,38 @@ export class RepoController {
     return;
   }
 
+  @ApiOperation({ summary: 'Fetch all bookmarks of a specific user' })
+  @ApiResponse({
+    status: 200,
+    description: "Fetches a user's bookmarks",
+    type: RepoResponseDto,
+    isArray: true,
+  })
+  @Get(':userId/bookmarks')
+  async getBookmarks(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<RepoResponseDto[]> {
+    const response = await this.repoService.getBookmarks(userId);
+
+    return plainToInstance(RepoResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Fetch all bookmarked repo ids of a specific user' })
+  @ApiResponse({
+    status: 200,
+    description: "Fetches a user's bookmarked repos ids",
+    type: RepoResponseDto,
+    isArray: true,
+  })
+  @Get(':userId/bookmarks/repoIds')
+  async getBookmarksRepoIds(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<bookmarkRepoIdsResponseDto> {
+    const response = await this.repoService.getBookmarksRepoIds(userId);
+
+    return plainToInstance(bookmarkRepoIdsResponseDto, response);
+  }
+
   @ApiOperation({ summary: 'Delete a repository of a user' })
   @ApiResponse({
     status: 204,
