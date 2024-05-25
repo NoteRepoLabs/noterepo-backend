@@ -130,17 +130,13 @@ export class FilesService {
       throw new NotFoundException('File not found');
     }
 
+    await this.prisma.repo.update({
+      where: { id: repoId },
+      data: { files: { delete: { id: fileId } } },
+    });
+
     //Delete a file from storage bucket
     await this.cloudinary.deleteFile(fileExists.publicName);
-
-    //Disconnect relation and delete file
-    await this.prisma.$transaction([
-      this.prisma.repo.update({
-        where: { id: repoId },
-        data: { files: { disconnect: { id: fileId } } },
-      }),
-      this.prisma.file.delete({ where: { id: fileId } }),
-    ]);
 
     return;
   }
@@ -174,9 +170,6 @@ export class FilesService {
     //Get the names
     files.forEach((file) => fileNames.push(file.publicName));
 
-    //Delete files from storage bucket
-    await this.cloudinary.deleteFiles(fileNames);
-
     //Disconnect files relations and delete files
     await this.prisma.$transaction([
       this.prisma.repo.update({
@@ -186,6 +179,9 @@ export class FilesService {
       }),
       this.prisma.file.deleteMany({ where: { id: { in: fileIds } } }),
     ]);
+
+    //Delete files from storage bucket
+    await this.cloudinary.deleteFiles(fileNames);
 
     return;
   }
