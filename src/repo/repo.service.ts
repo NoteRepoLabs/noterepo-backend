@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -74,6 +75,14 @@ export class RepoService {
       throw new NotFoundException('Repo not found');
     }
 
+    const isBookmarked = await this.prisma.bookmark.findUnique({
+      where: { userId_repoId: { userId, repoId } },
+    });
+
+    if (isBookmarked) {
+      throw new ConflictException('Repo Already Bookmarked');
+    }
+
     const bookmarked = await this.prisma.bookmark.create({
       data: { repoId, user: { connect: { id: userId } } },
     });
@@ -90,12 +99,19 @@ export class RepoService {
       throw new NotFoundException('Repo not found');
     }
 
+    const isBookmarked = await this.prisma.bookmark.findUnique({
+      where: { userId_repoId: { userId, repoId } },
+    });
+
+    if (!isBookmarked) {
+      throw new NotFoundException('Repo Not Bookmarked');
+    }
+
     await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: userId },
-        data: { bookmarks: { disconnect: { id: repoId } } },
+        data: { bookmarks: { delete: { id: isBookmarked.id } } },
       }),
-      this.prisma.bookmark.delete({ where: { id: repoId } }),
     ]);
 
     return;
