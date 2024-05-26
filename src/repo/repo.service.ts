@@ -110,9 +110,8 @@ export class RepoService {
     await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: userId },
-        data: { bookmarks: { disconnect: { id: repoId } } },
+        data: { bookmarks: { delete: { id: isBookmarked.id } } },
       }),
-      this.prisma.bookmark.delete({ where: { id: repoId } }),
     ]);
 
     return;
