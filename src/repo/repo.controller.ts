@@ -19,6 +19,7 @@ import {
   bookmarkRepoIdsResponseDto,
   bookmarkResponseDto,
 } from './dto/bookmark-response.dto';
+import { Throttle, seconds } from '@nestjs/throttler';
 
 @ApiTags('Repository')
 @UseGuards(AuthGuard)
@@ -75,6 +76,7 @@ export class RepoController {
     return plainToInstance(RepoResponseDto, response);
   }
 
+  @Throttle({ throttlers: { limit: 7, ttl: seconds(60) } })
   @ApiOperation({ summary: 'Bookmark a repository of a user' })
   @ApiResponse({
     status: 201,
@@ -90,6 +92,7 @@ export class RepoController {
     return plainToInstance(bookmarkResponseDto, response);
   }
 
+  @Throttle({ throttlers: { limit: 7, ttl: seconds(60) } })
   @ApiOperation({ summary: 'Unbookmark a repository of a user' })
   @ApiResponse({
     status: 204,
