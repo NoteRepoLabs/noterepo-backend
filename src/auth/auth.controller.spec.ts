@@ -14,6 +14,10 @@ describe('AuthController', () => {
   let controller: AuthController;
   let res: FastifyReply;
 
+  beforeAll(() => {
+    process.env.MEILISEARCH_HOST = 'http://localhost:7700';
+  });
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
