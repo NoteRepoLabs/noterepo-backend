@@ -8,6 +8,7 @@ import { EmailService } from '../email/email.service';
 import { prismaService } from '../../test/setupTests.e2e';
 import { FastifyReply } from 'fastify';
 import { UnauthorizedException } from '@nestjs/common';
+import { SearchService } from '../search/search.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -22,6 +23,7 @@ describe('AuthController', () => {
         JwtService,
         CookieService,
         EmailService,
+        SearchService,
       ],
     })
       .overrideProvider(PrismaService)
