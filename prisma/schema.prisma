@@ -66,6 +66,7 @@ model File {
   createdAt  DateTime @default(now())
   repo       Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
   repoId     String
+  userId     String
 }
 
 model Bookmark {

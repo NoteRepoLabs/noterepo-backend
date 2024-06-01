@@ -8,10 +8,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { prismaService } from '../../test/setupTests.e2e';
 import * as request from 'supertest';
 import { AuthService } from './auth.service';
+import { SearchService } from '../search/search.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let app: INestApplication;
+
+  beforeAll(() => {
+    process.env.MEILISEARCH_HOST = 'http://localhost:7700';
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,6 +27,7 @@ describe('AuthController', () => {
         JwtService,
         PrismaService,
         EmailService,
+        SearchService,
       ],
     })
       .overrideProvider(PrismaService)

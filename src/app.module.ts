@@ -20,6 +20,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { RepoModule } from './repo/repo.module';
 import { StorageModule } from './storage/storage.module';
 import { FilesModule } from './repo/files/files.module';
+import { SearchModule } from './search/search.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -47,6 +49,11 @@ import { FilesModule } from './repo/files/files.module';
         CLOUD_NAME: Joi.string().required(),
         CLOUDINARY_API_KEY: Joi.string().required(),
         CLOUDINARY_SECRET: Joi.string().required(),
+        MEILISEARCH_MASTER_KEY: Joi.string().required(),
+        MEILISEARCH_HOST: Joi.string().required(),
+        MEILISEARCH_ADMIN_KEY: Joi.string().required(),
+        MEILISEARCH_SEARCH_KEY: Joi.string().required(),
+        MEILISEARCH_SEARCH_KEY_UID: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false,
@@ -69,6 +76,8 @@ import { FilesModule } from './repo/files/files.module';
     RepoModule,
     StorageModule,
     FilesModule,
+    SearchModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [

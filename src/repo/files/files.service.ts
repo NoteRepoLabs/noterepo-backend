@@ -8,6 +8,8 @@ import {
 import { FastifyRequest } from 'fastify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CloudinaryService } from '../../storage/cloudinary/cloudinary.service';
+import { FileCreatedEvent } from './events/file-events';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 //File types supported
 const filetypes = [
@@ -27,6 +29,7 @@ export class FilesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
   async uploadFile(req: FastifyRequest, userId: string, repoId: string) {
     const file = await req.file();
@@ -57,7 +60,7 @@ export class FilesService {
     }
 
     const repo = await this.prisma.repo.findUnique({
-      where: { id: repoId },
+      where: { id: repoId, userId },
       include: { files: true },
     });
 
@@ -78,8 +81,8 @@ export class FilesService {
     // Format the filename to be unique for storage
     const timestamp = Date.now();
     const name = file.filename.split('.')[0];
-    const type = file.filename.split('.')[1];
-    const newFileName = `${name}_${timestamp}.${type}`;
+    //const type = file.filename.split('.')[1];
+    const newFileName = `${name}_${timestamp}`;
 
     //Upload file
     const uploadFileResult = await this.cloudinary.uploadFile(
@@ -101,8 +104,21 @@ export class FilesService {
         publicName: uploadFileResult.public_id,
         urlLink: fileUrl,
         repo: { connect: { id: repoId } },
+        userId,
       },
     });
+
+    const fileCreatedEvent = new FileCreatedEvent();
+    fileCreatedEvent.id = savedFile.id;
+    fileCreatedEvent.name = savedFile.name;
+    fileCreatedEvent.publicName = savedFile.publicName;
+    fileCreatedEvent.urlLink = savedFile.urlLink;
+    fileCreatedEvent.createdAt = savedFile.createdAt;
+    fileCreatedEvent.repoId = savedFile.repoId;
+    fileCreatedEvent.userId = savedFile.userId;
+
+    //Add File To Search Engine
+    await this.eventEmitter.emitAsync('searchFile.created', [fileCreatedEvent]);
 
     return savedFile;
   }
@@ -134,6 +150,9 @@ export class FilesService {
       where: { id: repoId },
       data: { files: { delete: { id: fileId } } },
     });
+
+    //Delete file from search engine
+    await this.eventEmitter.emitAsync('searchFile.deleted', [fileId]);
 
     //Delete a file from storage bucket
     await this.cloudinary.deleteFile(fileExists.publicName);
@@ -179,6 +198,9 @@ export class FilesService {
       }),
       this.prisma.file.deleteMany({ where: { id: { in: fileIds } } }),
     ]);
+
+    //Delete file from search engine
+    await this.eventEmitter.emitAsync('searchFile.deleted', fileIds);
 
     //Delete files from storage bucket
     await this.cloudinary.deleteFiles(fileNames);
