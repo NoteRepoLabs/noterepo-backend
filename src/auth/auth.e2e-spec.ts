@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { prismaService } from '../../test/setupTests.e2e';
 import * as request from 'supertest';
 import { AuthService } from './auth.service';
+import { SearchService } from '../search/search.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -22,6 +23,7 @@ describe('AuthController', () => {
         JwtService,
         PrismaService,
         EmailService,
+        SearchService,
       ],
     })
       .overrideProvider(PrismaService)
