@@ -6,10 +6,12 @@ import { JwtService } from '../jwt/jwt.service';
 import { CookieService } from '../cookie/cookie.service';
 import { EmailModule } from '../email/email.module';
 import { JoiPipeModule } from 'nestjs-joi';
+import { SearchModule } from '../search/search.module';
+import { SearchService } from '../search/search.service';
 
 @Module({
-  imports: [PrismaModule, EmailModule, JoiPipeModule],
+  imports: [PrismaModule, EmailModule, JoiPipeModule, SearchModule],
   controllers: [AuthController],
-  providers: [AuthService, JwtService, CookieService],
+  providers: [AuthService, JwtService, CookieService, SearchService],
 })
 export class AuthModule { }
