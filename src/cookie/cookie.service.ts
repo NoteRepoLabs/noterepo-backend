@@ -4,7 +4,7 @@ import { FastifyReply } from 'fastify';
 @Injectable()
 export class CookieService {
   sendCookie(value: string, res: FastifyReply) {
-    return res.cookie('authtoken', value, {
+    return res.setCookie('authtoken', value, {
       secure: true,
       httpOnly: true,
       sameSite: 'none',

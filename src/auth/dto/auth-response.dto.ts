@@ -21,6 +21,8 @@ export class AuthResponseDto {
 
   @Exclude()
   updatedAt: Date;
+
+  searchToken: string;
 }
 
 enum Role {

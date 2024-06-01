@@ -19,6 +19,7 @@ import { ResponseInterceptor } from './utils/response/response.interceptor';
 import { logger } from './utils/requestLogger/request.logger';
 import fastifyHelmet from '@fastify/helmet';
 import multiPart from '@fastify/multipart';
+import { SearchService } from './search/search.service';
 
 async function bootstrap() {
   //Fastify Adapter
@@ -94,6 +95,9 @@ async function bootstrap() {
 
   const HOST = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';
 
+  //Create and update search engine settings
+  await InstanciateSearchEngine();
+
   await app.listen(process.env.PORT, HOST);
 }
 
@@ -106,4 +110,10 @@ export function registerGlobals(app: INestApplication) {
     new ClassSerializerInterceptor(app.get(Reflector)),
     new ResponseInterceptor(),
   );
+}
+
+async function InstanciateSearchEngine() {
+  const searchEngine = new SearchService();
+  await searchEngine.createIndex();
+  await searchEngine.updateIndexSettings();
 }

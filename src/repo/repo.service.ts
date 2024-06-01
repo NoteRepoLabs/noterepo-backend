@@ -8,12 +8,15 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
 import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { RepoCreatedEvent } from './events/repo-events';
 
 @Injectable()
 export class RepoService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
 
   async createRepo(
@@ -36,6 +39,22 @@ export class RepoService {
       },
       include: { user: false },
     });
+
+    if (repo.isPublic) {
+      const repoCreatedEvent = new RepoCreatedEvent();
+      repoCreatedEvent.id = repo.id;
+      repoCreatedEvent.name = repo.name;
+      repoCreatedEvent.tags = repo.tags;
+      repoCreatedEvent.isPublic = repo.isPublic;
+      repoCreatedEvent.description = repo.description;
+      repoCreatedEvent.createdAt = repo.createdAt;
+      repoCreatedEvent.userId = repo.userId;
+
+      //Add repo to search engine
+      await this.eventEmitter.emitAsync('searchRepo.created', [
+        repoCreatedEvent,
+      ]);
+    }
 
     return repo;
   }
@@ -172,7 +191,11 @@ export class RepoService {
       //For storing file names
       const fileNames: string[] = [];
 
+      const fileIds: string[] = [];
+
       repo.files.forEach((file) => fileNames.push(file.publicName));
+
+      repo.files.forEach((file) => fileIds.push(file.id));
 
       //Delete all file relations to repo and delete repo
       await this.prisma.$transaction([
@@ -187,6 +210,12 @@ export class RepoService {
         }),
       ]);
 
+      //Delete Repos from Search Engine
+      this.eventEmitter.emitAsync('searchRepo.deleted', [repo.id]);
+
+      //Delete Files from Search Engine
+      this.eventEmitter.emitAsync('searchFile.deleted', [fileIds]);
+
       //Delete all files from cloudinary, to be implemented
       await this.cloudinary.deleteFiles(fileNames);
     } else {
@@ -195,6 +224,9 @@ export class RepoService {
         where: { id: userId },
         data: { Repo: { delete: { id: repoId } } },
       });
+
+      //Delete Repo from Search Engine
+      this.eventEmitter.emitAsync('searchRepo.deleted', [repo.id]);
     }
 
     return;

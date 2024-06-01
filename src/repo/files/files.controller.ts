@@ -13,6 +13,7 @@ import { FastifyRequest } from 'fastify';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../../guards/auth.guards';
 import { Throttle, minutes } from '@nestjs/throttler';
+import { FileResponseDto } from './dto/file-response.dto';
 
 @UseGuards(AuthGuard)
 @ApiTags('Files')
@@ -40,7 +41,7 @@ export class FilesController {
     @Req() req: FastifyRequest,
     @Param('userId', ParseUUIDPipe) userId: string,
     @Param('repoId', ParseUUIDPipe) repoId: string,
-  ) {
+  ): Promise<FileResponseDto> {
     return await this.filesService.uploadFile(req, userId, repoId);
   }
 

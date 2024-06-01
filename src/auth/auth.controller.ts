@@ -17,11 +17,15 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUsernameDto } from './dto/set-username.dto';
+import { SearchService } from '../search/search.service';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly searchService: SearchService,
+  ) { }
 
   @ApiOperation({ summary: 'Register a new user' })
   @Post('sign-up')
@@ -64,7 +68,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const response = await this.authService.signIn(body, res);
+    const user = await this.authService.signIn(body, res);
+
+    const searchToken = await this.searchService.createTenantSearchToken(
+      user.id,
+    );
+
+    //Generate response with search token
+    const response = { ...user, searchToken };
 
     /**  Maps response dto to response from the service, thereby excluding fields from dto **/
     return plainToInstance(AuthResponseDto, response);
@@ -110,7 +121,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const response = await this.authService.setInitialUsername(id, body, res);
+    const user = await this.authService.setInitialUsername(id, body, res);
+
+    const searchToken = await this.searchService.createTenantSearchToken(
+      user.id,
+    );
+
+    //Generate user response with search token
+    const response = { ...user, searchToken };
 
     return plainToInstance(AuthResponseDto, response);
   }
