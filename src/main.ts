@@ -96,7 +96,7 @@ async function bootstrap() {
   const HOST = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';
 
   //Create and update search engine settings
-  await InstanciateSearchEngine();
+  await InitializeSearchEngine();
 
   await app.listen(process.env.PORT, HOST);
 }
@@ -112,7 +112,7 @@ export function registerGlobals(app: INestApplication) {
   );
 }
 
-async function InstanciateSearchEngine() {
+async function InitializeSearchEngine() {
   const searchEngine = new SearchService();
   await searchEngine.createIndex();
   await searchEngine.updateIndexSettings();
