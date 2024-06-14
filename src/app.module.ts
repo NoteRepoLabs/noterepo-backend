@@ -37,7 +37,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         JWT_ACCESS_EXPIRATION_TIME: Joi.string().required(),
         JWT_REFRESH_SECRET: Joi.string().required(),
         JWT_REFRESH_EXPIRATION_TIME: Joi.string().required(),
-        COOKIE_SECRET: Joi.string().required(),
         WELCOME_LINK: Joi.string().required(),
         SIGN_IN_LINK: Joi.string().required(),
         RESET_PASSWORD_LINK: Joi.string().required(),
