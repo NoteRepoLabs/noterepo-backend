@@ -24,7 +24,7 @@ $ yarn install
 
 ## Environment Configuration
 
-To run the server, create a `.env` file in the root of the project using the `.env.example` file as a template.
+To run the server, create a `.env` file in the root of the project using the [`.env.example`](https://github.com/NoteRepoLabs/noterepo-backend/blob/docs/update-docs/.env.example) file as a template.
 
 ## Running the app
 
