@@ -1,4 +1,4 @@
-<img src="./github/banner.svg" alt="RepoBanner" />
+<img src="./.github/banner.svg" alt="RepoBanner" />
 
 Web server for the NoteRepo web client written with NestJS and Typescript.
 
