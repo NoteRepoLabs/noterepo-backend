@@ -3,12 +3,20 @@ import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
 import { StorageModule } from '../../storage/storage.module';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { JwtService } from '../../jwt/jwt.service';
-import { CookieService } from '../../cookie/cookie.service';
+import { UsersModule } from '../../users/users.module';
+import { UsersService } from '../../users/users.service';
+import { EmailService } from 'src/email/email.service';
+import { JwtService } from 'src/jwt/jwt.service';
 
 @Module({
-  imports: [StorageModule],
+  imports: [StorageModule, UsersModule],
   controllers: [FilesController],
-  providers: [FilesService, PrismaService, JwtService, CookieService],
+  providers: [
+    FilesService,
+    PrismaService,
+    UsersService,
+    EmailService,
+    JwtService,
+  ],
 })
 export class FilesModule { }
