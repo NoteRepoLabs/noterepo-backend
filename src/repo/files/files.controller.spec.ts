@@ -6,15 +6,25 @@ import { CloudinaryService } from '../../storage/cloudinary/cloudinary.service';
 import { StorageModule } from '../../storage/storage.module';
 import { JwtService } from '../../jwt/jwt.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UsersModule } from '../../users/users.module';
+import { UsersService } from '../../users/users.service';
+import { EmailService } from '../../email/email.service';
 
 describe('NotesController', () => {
   let controller: FilesController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [StorageModule, EventEmitterModule.forRoot()],
+      imports: [StorageModule, UsersModule, EventEmitterModule.forRoot()],
       controllers: [FilesController],
-      providers: [FilesService, PrismaService, CloudinaryService, JwtService],
+      providers: [
+        FilesService,
+        PrismaService,
+        CloudinaryService,
+        JwtService,
+        UsersService,
+        EmailService,
+      ],
     }).compile();
 
     controller = module.get<FilesController>(FilesController);
