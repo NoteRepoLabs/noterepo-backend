@@ -3,12 +3,13 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '../jwt/jwt.service';
-import { CookieService } from '../cookie/cookie.service';
 import { EmailService } from '../email/email.service';
 import { prismaService } from '../../test/setupTests.e2e';
 import { FastifyReply } from 'fastify';
 import { UnauthorizedException } from '@nestjs/common';
 import { SearchService } from '../search/search.service';
+import { UsersService } from '../users/users.service';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -23,11 +24,12 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
+        UsersService,
         PrismaService,
         JwtService,
-        CookieService,
         EmailService,
         SearchService,
+        CloudinaryService,
       ],
     })
       .overrideProvider(PrismaService)

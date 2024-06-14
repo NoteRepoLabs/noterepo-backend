@@ -10,10 +10,12 @@ import { CreateRepoDto } from './dto/create-repo.dto';
 import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RepoCreatedEvent } from './events/repo-events';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class RepoService {
   constructor(
+    private readonly userService: UsersService,
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
     private readonly eventEmitter: EventEmitter2,
@@ -23,7 +25,7 @@ export class RepoService {
     userId: string,
     { name, description, tags, isPublic }: CreateRepoDto,
   ) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.userService.findUserById(userId);
 
     if (!user) {
       throw new NotFoundException('Cannot create repo, user not found');

@@ -1,7 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CookieService } from '../cookie/cookie.service';
 import { JwtService } from '../jwt/jwt.service';
 import { EmailService } from '../email/email.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,6 +8,8 @@ import { prismaService } from '../../test/setupTests.e2e';
 import * as request from 'supertest';
 import { AuthService } from './auth.service';
 import { SearchService } from '../search/search.service';
+import { UsersService } from '../users/users.service';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -23,11 +24,12 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
-        CookieService,
         JwtService,
         PrismaService,
         EmailService,
         SearchService,
+        UsersService,
+        CloudinaryService,
       ],
     })
       .overrideProvider(PrismaService)

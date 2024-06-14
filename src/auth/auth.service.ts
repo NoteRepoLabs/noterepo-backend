@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -12,19 +13,19 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/sign-in.dto';
 import { JwtService } from '../jwt/jwt.service';
-import { CookieService } from '../cookie/cookie.service';
 import { FastifyReply } from 'fastify';
 import { EmailService } from '../email/email.service';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { generateWelcomeLink } from '../utils/generateLinks/generateWelcomeLink';
 import { v4 as uuid } from 'uuid';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwt: JwtService,
-    private readonly cookie: CookieService,
+    private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
     private readonly email: EmailService,
   ) { }
 
@@ -36,21 +37,19 @@ export class AuthService {
     //Convert mail to lowercase
     const lowercaseEmail = email.toLowerCase();
 
-    const user = await this.prisma.user.findUnique({
-      where: { email: lowercaseEmail },
-    });
-
+    const user = await this.userService.findUserByEmail(lowercaseEmail);
     //If user exists
     if (user) {
       throw new BadRequestException('User already exists.');
     }
 
     //Hash new user password
-    const hashPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // save and return newUser Object
-    const newUser = await this.prisma.user.create({
-      data: { email: lowercaseEmail, password: hashPassword },
+    const newUser = await this.userService.createUser({
+      email: lowercaseEmail,
+      password: hashedPassword,
     });
 
     //Store token in verification table
@@ -73,9 +72,7 @@ export class AuthService {
     //Converting emails to lowercase
     const lowercaseEmail = email.toLowerCase();
 
-    const user = await this.prisma.user.findUnique({
-      where: { email: lowercaseEmail },
-    });
+    const user = await this.userService.findUserByEmail(lowercaseEmail);
 
     // If user not found
     if (!user) {
@@ -113,18 +110,18 @@ export class AuthService {
       throw new UnauthorizedException('Email or password not correct.');
     }
 
-    //Generate Jwt token from jwt service
-    const token = await this.jwt.sign({ id: user.id });
+    //Generate Jwt access token and refresh tokenfrom jwt service
+    const token = await this.getTokens(user.id);
 
-    //set cookie header
-    this.cookie.sendCookie(token, res);
+    //Add user's refresh token to database
+    await this.updateRefreshToken(user.id, token.refresh_token);
 
     this.logger.log('User signed in successfully');
 
     this.logger.log({ id: user.id });
 
     //Return user object
-    return user;
+    return { ...user, ...token };
   }
 
   //Verify Account
@@ -142,11 +139,8 @@ export class AuthService {
     }
 
     //If token found, verify user
-    const user = await this.prisma.user.update({
-      where: {
-        id: verificationToken.userId,
-      },
-      data: { isVerified: true },
+    const user = await this.userService.verifyUser({
+      userId: verificationToken.userId,
     });
 
     //Delete token
@@ -160,26 +154,16 @@ export class AuthService {
     return welcomeLink;
   }
 
-  async setInitialUsername(
-    id: string,
-    { username }: SetUsernameDto,
-    res: FastifyReply,
-  ) {
+  async setInitialUsername(userId: string, { username }: SetUsernameDto) {
     //Check if user name exists already
-    const name = await this.prisma.user.findUnique({
-      where: { username },
-    });
+    const name = await this.userService.findUserByUsername(username);
 
     if (name) {
       throw new HttpException('Username Already Exists', HttpStatus.CONFLICT);
     }
 
     //Find Account
-    const account = await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-    });
+    const account = await this.userService.findUserById(userId);
 
     if (!account) {
       throw new NotFoundException('Account not found.');
@@ -191,21 +175,54 @@ export class AuthService {
     }
 
     //Set username
-    const user = await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: { username },
-    });
+    const user = await this.userService.updateUser(userId, { username });
 
-    //Generate Jwt token from jwt service
-    const token = await this.jwt.sign({ id: user.id });
+    //Generate Jwt access and refresh token  from jwt service
+    const token = await this.getTokens(user.id);
 
-    //set cookie header
-    this.cookie.sendCookie(token, res);
+    //Hash and add user's refresh token to database
+    await this.updateRefreshToken(user.id, token.refresh_token);
 
     this.logger.log('Username set successfully.');
 
-    return user;
+    return { ...user, ...token };
+  }
+
+  async getTokens(userId: string) {
+    const [access_token, refresh_token] = await Promise.all([
+      await this.jwtService.signAccessToken({ id: userId }),
+      await this.jwtService.signRefreshToken({ id: userId }),
+    ]);
+
+    return { access_token, refresh_token };
+  }
+
+  async updateRefreshToken(userId: string, refreshToken: string) {
+    return await this.userService.updateUser(userId, {
+      refresh_token: refreshToken,
+    });
+  }
+
+  async refreshToken(userId: string) {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user || !user.refresh_token)
+      throw new ForbiddenException('Access Denied');
+
+    //Generate new access token and
+    const access_token = await this.jwtService.signAccessToken({ id: userId });
+    const refresh_token = user.refresh_token;
+
+    return { access_token, refresh_token };
+  }
+
+  async signOut(userId: string) {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user) throw new NotFoundException('User Not Found');
+
+    await this.userService.updateUser(userId, { refresh_token: null });
+
+    return;
   }
 }
