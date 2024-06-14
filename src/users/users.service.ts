@@ -12,6 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { EmailService } from '../email/email.service';
 import { v4 as uuid } from 'uuid';
 import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
+import { VerificationTokenDto } from './dto/verification.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +23,32 @@ export class UsersService {
     private readonly cloudinary: CloudinaryService,
   ) { }
 
+  async createUser(user: CreateUserDto) {
+    return await this.prisma.user.create({
+      data: { email: user.email, password: user.password },
+    });
+  }
+
+  async findUserById(userId: string) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+  }
+
+  async findUserByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+      where: { email: email },
+    });
+  }
+
+  async findUserByUsername(username: string) {
+    return await this.prisma.user.findUnique({
+      where: { username },
+    });
+  }
+
   //Development only
   async getAllUsers() {
     const user = await this.prisma.user.findMany();
@@ -28,8 +56,22 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} ${updateUserDto} user`;
+  async updateUser(userId: string, updateUserDto: UpdateUserDto) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: updateUserDto,
+    });
+  }
+
+  async verifyUser(verificationToken: VerificationTokenDto) {
+    return await this.prisma.user.update({
+      where: {
+        id: verificationToken.userId,
+      },
+      data: { isVerified: true },
+    });
   }
 
   async forgetPassword({ email }: ForgetPasswordDto) {
