@@ -3,8 +3,9 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { postgresClient, prismaService } from '../../test/setupTests.e2e';
 import { JwtService } from '../jwt/jwt.service';
-import { CookieService } from '../cookie/cookie.service';
 import { EmailService } from '../email/email.service';
+import { UsersService } from '../users/users.service';
+import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 
 describe('authService', () => {
   let service: AuthService;
@@ -13,10 +14,11 @@ describe('authService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        UsersService,
         PrismaService,
         JwtService,
-        CookieService,
         EmailService,
+        CloudinaryService,
       ],
     })
       .overrideProvider(PrismaService)
