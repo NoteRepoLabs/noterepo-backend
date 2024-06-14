@@ -8,7 +8,7 @@ import { FastifyRequest } from 'fastify';
 import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class RefreshAuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       //Verify the cookie jwt
-      const payload = await this.jwtService.verifyAccessToken(token);
+      const payload = await this.jwtService.verifyRefreshToken(token);
 
       request['user'] = payload;
     } catch (err) {
@@ -33,7 +33,6 @@ export class AuthGuard implements CanActivate {
   private extractTokenFromHeader(req: FastifyRequest): string | undefined {
     const authHeader = req.headers['authorization'];
 
-    //If no auth header
     if (!authHeader) return null;
 
     const [authType, token] = authHeader.split(' ');

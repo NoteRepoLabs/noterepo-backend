@@ -10,6 +10,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CloudinaryService } from '../../storage/cloudinary/cloudinary.service';
 import { FileCreatedEvent } from './events/file-events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UsersService } from '../../users/users.service';
 
 //File types supported
 const filetypes = [
@@ -27,6 +28,7 @@ const fieldNames = ['file'];
 @Injectable()
 export class FilesService {
   constructor(
+    private readonly userService: UsersService,
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
     private readonly eventEmitter: EventEmitter2,
@@ -125,7 +127,7 @@ export class FilesService {
 
   //Delete a file from repo
   async deleteAFile(userId: string, repoId: string, fileId: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.userService.findUserById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -162,7 +164,7 @@ export class FilesService {
 
   //Delete multiple files in a repo
   async deleteFiles(userId: string, repoId: string, fileIds: string[]) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.userService.findUserById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');

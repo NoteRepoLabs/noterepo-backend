@@ -7,6 +7,8 @@ import {
   Res,
   Param,
   ParseUUIDPipe,
+  UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, signUpSchema } from './dto/sign-up.dto';
@@ -18,6 +20,8 @@ import { plainToInstance } from 'class-transformer';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { SearchService } from '../search/search.service';
+import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
+import { RefreshAuthGuard } from '../guards/refreshGuard.guards';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
@@ -49,6 +53,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Sign in user' })
+  @HttpCode(200)
   @Post('sign-in')
   @ApiResponse({
     status: 200,
@@ -70,12 +75,13 @@ export class AuthController {
     //Get Response from service
     const user = await this.authService.signIn(body, res);
 
-    const searchToken = await this.searchService.createTenantSearchToken(
+    //Generate search tenant token
+    const search_token = await this.searchService.createTenantSearchToken(
       user.id,
     );
 
     //Generate response with search token
-    const response = { ...user, searchToken };
+    const response = { ...user, search_token };
 
     /**  Maps response dto to response from the service, thereby excluding fields from dto **/
     return plainToInstance(AuthResponseDto, response);
@@ -118,18 +124,49 @@ export class AuthController {
   async setInitialUsername(
     @Body() body: SetUsernameDto,
     @Param('userId', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const user = await this.authService.setInitialUsername(id, body, res);
+    const user = await this.authService.setInitialUsername(id, body);
 
-    const searchToken = await this.searchService.createTenantSearchToken(
+    const search_token = await this.searchService.createTenantSearchToken(
       user.id,
     );
 
     //Generate user response with search token
-    const response = { ...user, searchToken };
+    const response = { ...user, search_token };
 
     return plainToInstance(AuthResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Refresh access token' })
+  @Get('refreshToken/:userId')
+  @ApiResponse({
+    status: 200,
+    description: 'User access token refresh',
+    type: RefreshTokenResponseDto,
+  })
+  @UseGuards(RefreshAuthGuard)
+  @ApiResponse({ status: 403, description: 'Access Denied' })
+  async refreshToken(
+    @Param('userId', ParseUUIDPipe) id: string,
+  ): Promise<RefreshTokenResponseDto> {
+    //Get Response from service
+    const token = await this.authService.refreshToken(id);
+
+    return token;
+  }
+
+  @ApiOperation({ summary: 'Sign user out' })
+  @Post('sign-out/:userId')
+  @ApiResponse({
+    status: 200,
+    description: 'User sign out',
+  })
+  @ApiResponse({ status: 404, description: 'User Not Found' })
+  async signOut(@Param('userId', ParseUUIDPipe) id: string) {
+    //Get Response from service
+    await this.authService.signOut(id);
+
+    return;
   }
 }

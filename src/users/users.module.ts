@@ -4,8 +4,8 @@ import { UsersController } from './users.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { EmailModule } from '../email/email.module';
 import { PrismaService } from '../prisma/prisma.service';
-import { JwtService } from 'src/jwt/jwt.service';
-import { StorageModule } from 'src/storage/storage.module';
+import { JwtService } from '../jwt/jwt.service';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [PrismaModule, EmailModule, StorageModule],

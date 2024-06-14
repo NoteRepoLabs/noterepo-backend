@@ -68,7 +68,7 @@ export class SearchService {
     };
 
     //Search Tenant Token expiration time
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1day
+    const expiresAt = new Date(Date.now() + 120 * 60 * 60 * 1000); // 5days
 
     try {
       //Generate token

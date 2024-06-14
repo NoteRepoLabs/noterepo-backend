@@ -22,10 +22,14 @@ export class AuthResponseDto {
   @Exclude()
   updatedAt: Date;
 
-  searchToken: string;
+  access_token: string;
+
+  refresh_token: string;
+
+  search_token: string;
 }
 
-enum Role {
+export enum Role {
   USER,
   ADMIN,
 }
