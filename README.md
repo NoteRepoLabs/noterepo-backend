@@ -16,7 +16,7 @@ git clone https://github.com/NoteRepoLabs/noterepo-backend.git
 cd noterepo-backend
 ```
 
-Then install the dependencies using `npm`
+Then install the dependencies using `yarn`
 
 ```sh
 $ yarn install
