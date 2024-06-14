@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtService } from './jwt/jwt.service';
-import { CookieService } from './cookie/cookie.service';
 import { EmailModule } from './email/email.module';
 import { UsersModule } from './users/users.module';
 import * as Joi from 'joi';
@@ -34,8 +33,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
           .required(),
         PORT: Joi.number().port().default(3000),
         DATABASE_URL: Joi.string().required(),
-        JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRATION_TIME: Joi.string().required(),
+        JWT_ACCESS_SECRET: Joi.string().required(),
+        JWT_ACCESS_EXPIRATION_TIME: Joi.string().required(),
+        JWT_REFRESH_SECRET: Joi.string().required(),
+        JWT_REFRESH_EXPIRATION_TIME: Joi.string().required(),
         COOKIE_SECRET: Joi.string().required(),
         WELCOME_LINK: Joi.string().required(),
         SIGN_IN_LINK: Joi.string().required(),
@@ -83,7 +84,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
   providers: [
     AppService,
     JwtService,
-    CookieService,
+
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
