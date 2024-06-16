@@ -91,13 +91,20 @@ export class EmailService {
       resetLink: link,
     };
 
-    const html = await this.readAndCompileTemplate('resetPassword.html', creds);
+    try {
+      const html = await this.readAndCompileTemplate(
+        'resetPassword.html',
+        creds,
+      );
 
-    await this.sendEmail(
-      email,
-      html,
-      'Noterepo reset password mail',
-      undefined,
-    );
+      await this.sendEmail(
+        email,
+        html,
+        'Noterepo reset password mail',
+        undefined,
+      );
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
