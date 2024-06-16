@@ -85,12 +85,25 @@ export class UsersService {
       throw new NotFoundException('User with email not found.');
     }
 
-    //Generate a reset token
-    const resetPassword = await this.prisma.resetPassword.create({
-      data: { token: uuid(), userId: user.id },
+    const isToken = await this.prisma.resetPassword.findUnique({
+      where: { userId: user.id },
     });
 
-    const link = generateResetPasswordLink(resetPassword.token);
+    let resetPasswordToken: string;
+
+    //If token is already in db, reuse it, else create a new one
+    if (isToken) {
+      resetPasswordToken = isToken.token;
+    } else {
+      //Create a reset token
+      const newPasswordToken = await this.prisma.resetPassword.create({
+        data: { token: uuid(), userId: user.id },
+      });
+
+      resetPasswordToken = newPasswordToken.token;
+    }
+
+    const link = generateResetPasswordLink(resetPasswordToken);
 
     await this.email.sendResetPasswordMail(email, link);
 
