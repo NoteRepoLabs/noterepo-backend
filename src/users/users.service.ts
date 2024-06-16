@@ -122,7 +122,7 @@ export class UsersService {
 
     //If no reset password link
     if (!resetPassword) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("Can't reset password, link expired");
     }
 
     if (password !== confirmPassword) {
