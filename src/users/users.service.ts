@@ -171,7 +171,7 @@ export class UsersService {
 
     const repos = await this.prisma.repo.findMany({ where: { userId: id } });
 
-    if (repos) {
+    if (repos.length > 0) {
       const repoIds: string[] = [];
 
       repos.forEach((repo) => repoIds.push(repo.id));
@@ -180,7 +180,7 @@ export class UsersService {
         where: { repoId: { in: repoIds } },
       });
 
-      if (files) {
+      if (files.length > 0) {
         const fileNames: string[] = [];
 
         files.forEach((file) => fileNames.push(file.publicName));
