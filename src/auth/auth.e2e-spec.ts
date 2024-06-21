@@ -10,13 +10,34 @@ import { AuthService } from './auth.service';
 import { SearchService } from '../search/search.service';
 import { UsersService } from '../users/users.service';
 import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import { emailService } from '../email/email.mock';
 
+let mailpitContainer: StartedTestContainer;
 describe('AuthController', () => {
   let controller: AuthController;
   let app: INestApplication;
 
   beforeAll(() => {
+  beforeAll(async () => {
     process.env.MEILISEARCH_HOST = 'http://localhost:7700';
+
+    // Start Mailpit for capturing mails locally
+    mailpitContainer = await new GenericContainer('axllent/mailpit')
+      .withName('mailpit')
+      .withExposedPorts(
+        { container: 8025, host: 8025 },
+        { container: 1025, host: 1025 },
+      )
+      .withStartupTimeout(120000)
+      .start();
+
+    // Get the mapped ports for accessing the services
+    const uiPort = mailpitContainer.getMappedPort(8025);
+    const smtpPort = mailpitContainer.getMappedPort(1025);
+
+    console.log(`Mailpit UI is running on port ${uiPort}`);
+    console.log(`Mailpit SMTP is running on port ${smtpPort}`);
   });
 
   beforeEach(async () => {
