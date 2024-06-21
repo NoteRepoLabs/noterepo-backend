@@ -40,5 +40,7 @@ jobs:
           SIGN_IN_LINK: ${{ secrets.SIGN_IN_LINK }}
           MEILISEARCH_SEARCH_KEY: ${{ secrets.MEILISEARCH_SEARCH_KEY }}
           MEILISEARCH_SEARCH_KEY_UID: ${{ secrets.MEILISEARCH_SEARCH_KEY_UID }}
+          TEST_MAILGUN_API_KEY: ${{ secrets.TEST_MAILGUN_API_KEY }}
+          MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
 
         run: yarn run test:e2e && yarn run test
