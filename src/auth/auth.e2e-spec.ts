@@ -152,6 +152,34 @@ describe('AuthController', () => {
     console.log(response.body);
   });
 
+  it('Should set username /auth/setInitialUsername', async () => {
+    try {
+      const userRequest = { username: 'anonymous' };
+
+      // Query the database for the user
+      const result = await postgresClient.query(
+        'SELECT * FROM "public"."User"',
+      );
+
+      const response = await request(app.getHttpServer())
+        .post(`/auth/setInitialUsername/${result.rows[0].id}`)
+        .send(userRequest)
+        .expect(201);
+
+      expect(response.body.email).toBeDefined();
+      expect(response.body.role).toEqual('USER');
+      expect(response.body.isVerified).toBeTruthy();
+      expect(response.body.refresh_token).toBeDefined();
+      expect(response.body.access_token).toBeDefined();
+      expect(response.body.search_token).toBeDefined();
+      expect(response.body.username).toBe(userRequest.username);
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await postgresClient.query('ROLLBACK');
+      throw error;
+    }
+  });
+
   afterAll(async () => {
     await app.close();
   });
