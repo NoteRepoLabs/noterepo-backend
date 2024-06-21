@@ -12,6 +12,12 @@ import { UsersService } from '../users/users.service';
 import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { emailService } from '../email/email.mock';
+import { extractLinkFromHtml } from '../utils/extractLinkfromHtml';
+
+async function getEndpoint(url: string) {
+  const endpoint = url.replace(/^https?:\/\/[^\/]+\/api\/v1/, '');
+  return endpoint;
+}
 
 let mailpitContainer: StartedTestContainer;
 describe('AuthController', () => {
