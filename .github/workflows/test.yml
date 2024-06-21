@@ -30,9 +30,15 @@ jobs:
 
       - name: Run Tests
         env:
-          MAILGUN_API_KEY: ${{ secrets.TEST_MAILGUN_API_KEY }}
           MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
           NOTEREPO_MAIL: ${{ secrets.NOTEREPO_MAIL }}
-          TEST_MAIL_DOMAIN: ${{ secrets.TEST_MAIL_DOMAIN }}
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_ACCESS_EXPIRATION_TIME: ${{ secrets.JWT_ACCESS_EXPIRATION_TIME }}
+          JWT_REFRESH_EXPIRATION_TIME: ${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}
+          WELCOME_LINK: ${{ secrets.WELCOME_LINK }}
+          SIGN_IN_LINK: ${{ secrets.SIGN_IN_LINK }}
+          MEILISEARCH_SEARCH_KEY: ${{ secrets.MEILISEARCH_SEARCH_KEY }}
+          MEILISEARCH_SEARCH_KEY_UID: ${{ secrets.MEILISEARCH_SEARCH_KEY_UID }}
 
         run: yarn run test:e2e && yarn run test
