@@ -180,6 +180,24 @@ describe('AuthController', () => {
     }
   });
 
+  it('Should signin user /auth/sign-in (POST)', async () => {
+    const userRequest = { email: 'manuel234@gmail.com', password: 'anonymous' };
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/sign-in')
+      .send(userRequest)
+      .expect(200);
+
+    expect(response.body.email).toBe(userRequest.email);
+    expect(response.body.role).toBe('USER');
+    expect(response.body.isVerified).toBeTruthy();
+    expect(response.body.username).toBeDefined();
+    expect(response.body.password).toBeUndefined();
+    expect(response.body.refresh_token).toBeDefined();
+    expect(response.body.access_token).toBeDefined();
+    expect(response.body.search_token).toBeDefined();
+    expect(response.body.updatedAt).toBeUndefined();
+  });
   afterAll(async () => {
     await app.close();
   });
