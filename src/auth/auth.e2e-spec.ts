@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '../jwt/jwt.service';
 import { EmailService } from '../email/email.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { prismaService } from '../../test/setupTests.e2e';
+import { postgresClient, prismaService } from '../../test/setupTests.e2e';
 import * as request from 'supertest';
 import { AuthService } from './auth.service';
 import { SearchService } from '../search/search.service';
@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { emailService } from '../email/email.mock';
+import axios from 'axios';
 import { extractLinkFromHtml } from '../utils/extractLinkfromHtml';
 
 async function getEndpoint(url: string) {
@@ -24,7 +25,6 @@ describe('AuthController', () => {
   let controller: AuthController;
   let app: INestApplication;
 
-  beforeAll(() => {
   beforeAll(async () => {
     process.env.MEILISEARCH_HOST = 'http://localhost:7700';
 
@@ -94,7 +94,7 @@ describe('AuthController', () => {
     expect(response.body.updatedAt).toBeUndefined();
   });
 
-  it('/auth/sign-in', async () => {
+  it('Should not sign-in /auth/sign-in', async () => {
     const userRequest = { email: 'manuel234@gmail.com', password: 'anonymous' };
 
     const response = await request(app.getHttpServer())
@@ -199,6 +199,11 @@ describe('AuthController', () => {
     expect(response.body.updatedAt).toBeUndefined();
   });
   afterAll(async () => {
+    if (mailpitContainer) {
+      await mailpitContainer.stop();
+      console.log('test db stopped...');
+    }
     await app.close();
   });
 });
+jest.setTimeout(200000);
