@@ -198,6 +198,7 @@ describe('AuthController', () => {
     expect(response.body.search_token).toBeDefined();
     expect(response.body.updatedAt).toBeUndefined();
   });
+
   afterAll(async () => {
     if (mailpitContainer) {
       await mailpitContainer.stop();
@@ -206,4 +207,5 @@ describe('AuthController', () => {
     await app.close();
   });
 });
+
 jest.setTimeout(200000);
