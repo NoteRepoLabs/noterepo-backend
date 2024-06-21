@@ -141,6 +141,17 @@ describe('AuthController', () => {
     expect(result.rows[0].username).toBeNull();
   });
 
+  it('Should redirect user to set username /auth/sign-in', async () => {
+    const userRequest = { email: 'manuel234@gmail.com', password: 'anonymous' };
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/sign-in')
+      .send(userRequest)
+      .expect(302);
+
+    console.log(response.body);
+  });
+
   afterAll(async () => {
     await app.close();
   });
