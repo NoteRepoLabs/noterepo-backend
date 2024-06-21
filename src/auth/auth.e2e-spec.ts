@@ -112,6 +112,35 @@ describe('AuthController', () => {
     expect(response.body.statusCode).toBe(401);
   });
 
+  it('should verify user account', async () => {
+    // Ensure email is sent and Mailpit captures it
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    //Get verification mail html
+    const verificationMailHtml = await axios.get(
+      'http://localhost:8025/view/latest.html',
+    );
+
+    //Parse the html to get the link
+    const verifyLink = extractLinkFromHtml(verificationMailHtml.data);
+
+    const endpoint = await getEndpoint(verifyLink);
+
+    const response = await request(app.getHttpServer())
+      .get(endpoint)
+      .expect(302);
+
+    console.log(response.body);
+
+    // Query the database for the newly verified user
+    const result = await postgresClient.query('SELECT * FROM "public"."User"');
+
+    expect(result.rows[0].email).toBeDefined();
+    expect(result.rows[0].role).toEqual('USER');
+    expect(result.rows[0].isVerified).toBeTruthy();
+    expect(result.rows[0].username).toBeNull();
+  });
+
   afterAll(async () => {
     await app.close();
   });
