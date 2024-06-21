@@ -61,6 +61,8 @@ describe('AuthController', () => {
     })
       .overrideProvider(PrismaService)
       .useValue(prismaService)
+      .overrideProvider(EmailService)
+      .useClass(emailService)
       .compile();
 
     controller = module.get<AuthController>(AuthController);
