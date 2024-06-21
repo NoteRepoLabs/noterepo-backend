@@ -102,8 +102,6 @@ describe('AuthController', () => {
       .send(userRequest)
       .expect(401);
 
-    console.log(response.body);
-
     expect(response.body).toBeDefined();
     expect(response.body.message).toBe(
       'Your account is not verified, an email as be sent to man******@gmail.com',
@@ -126,11 +124,7 @@ describe('AuthController', () => {
 
     const endpoint = await getEndpoint(verifyLink);
 
-    const response = await request(app.getHttpServer())
-      .get(endpoint)
-      .expect(302);
-
-    console.log(response.body);
+    await request(app.getHttpServer()).get(endpoint).expect(302);
 
     // Query the database for the newly verified user
     const result = await postgresClient.query('SELECT * FROM "public"."User"');
@@ -144,12 +138,10 @@ describe('AuthController', () => {
   it('Should redirect user to set username /auth/sign-in', async () => {
     const userRequest = { email: 'manuel234@gmail.com', password: 'anonymous' };
 
-    const response = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/sign-in')
       .send(userRequest)
       .expect(302);
-
-    console.log(response.body);
   });
 
   it('Should set username /auth/setInitialUsername', async () => {
