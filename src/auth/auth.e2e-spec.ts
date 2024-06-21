@@ -75,7 +75,7 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('/auth/sign-up (POST)', async () => {
+  it('Should signup /auth/sign-up (POST)', async () => {
     const userRequest = { email: 'manuel234@gmail.com', password: 'anonymous' };
 
     const response = await request(app.getHttpServer())
@@ -85,10 +85,13 @@ describe('AuthController', () => {
 
     expect(response.body.email).toBe(userRequest.email);
     expect(response.body.role).toBe('USER');
-    expect(response.body.isVerified).toBe(false);
-    expect(response.body.username).toBe(null);
-    expect(response.body.password).toBe(undefined);
-    expect(response.body.updatedAt).toBe(undefined);
+    expect(response.body.isVerified).toBeFalsy();
+    expect(response.body.username).toBeNull();
+    expect(response.body.password).toBeUndefined();
+    expect(response.body.refresh_token).toBeNull();
+    expect(response.body.access_token).toBeUndefined();
+    expect(response.body.search_token).toBeUndefined();
+    expect(response.body.updatedAt).toBeUndefined();
   });
 
   it('/auth/sign-in', async () => {
