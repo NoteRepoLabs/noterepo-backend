@@ -13,7 +13,7 @@ import { RepoService } from './repo.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
 import { plainToInstance } from 'class-transformer';
 import { RepoResponseDto } from './dto/repo-response.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../guards/auth.guards';
 import {
   bookmarkRepoIdsResponseDto,
@@ -22,6 +22,7 @@ import {
 import { Throttle, seconds } from '@nestjs/throttler';
 
 @ApiTags('Repository')
+@ApiBearerAuth("access-token")
 @UseGuards(AuthGuard)
 @Controller({ path: 'users', version: '1' })
 export class RepoController {
