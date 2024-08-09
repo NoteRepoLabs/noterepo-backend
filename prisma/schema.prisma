@@ -14,17 +14,18 @@ datasource db {
 }
 
 model User {
-  id         String     @id @default(uuid())
-  username   String?    @unique
-  email      String     @unique
-  password   String
-  isVerified Boolean    @default(false)
-  role       Role       @default(USER)
+  id            String     @id @default(uuid())
+  username      String?    @unique
+  email         String     @unique
+  password      String
+  isVerified    Boolean    @default(false)
+  role          Role       @default(USER)
   refresh_token String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  Repo       Repo[]
-  bookmarks  Bookmark[]
+  repoCount     Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  Repo          Repo[]
+  bookmarks     Bookmark[]
 }
 
 model Verification {
