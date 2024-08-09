@@ -10,12 +10,13 @@ import {
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FastifyRequest } from 'fastify';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../../guards/auth.guards';
 import { Throttle, minutes } from '@nestjs/throttler';
 import { FileResponseDto } from './dto/file-response.dto';
 
 @UseGuards(AuthGuard)
+@ApiBearerAuth("access-token")
 @ApiTags('Files')
 @Controller({ path: 'users', version: '1' })
 export class FilesController {
