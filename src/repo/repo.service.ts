@@ -40,7 +40,6 @@ export class RepoService {
 			throw new NotFoundException("Cannot create repo, user not found");
 		}
 
-		console.log(`Maximum repo ${this.isMaxRepoCount(user.repoCount)}`);
 		// Check amount of user's repo
 		if (this.isMaxRepoCount(user.repoCount)) {
 			throw new ForbiddenException("Maximum allowed repos reached");
