@@ -22,7 +22,7 @@ export class RepoService {
 		private readonly eventEmitter: EventEmitter2,
 	) {}
 
-	async isMaxRepoCount(count: number) {
+	isMaxRepoCount(count: number) {
 		// Maximum repo count
 		if (count >= 5) {
 			return true;
@@ -40,6 +40,7 @@ export class RepoService {
 			throw new NotFoundException("Cannot create repo, user not found");
 		}
 
+		console.log(`Maximum repo ${this.isMaxRepoCount(user.repoCount)}`);
 		// Check amount of user's repo
 		if (this.isMaxRepoCount(user.repoCount)) {
 			throw new ForbiddenException("Maximum allowed repos reached");
