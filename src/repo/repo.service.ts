@@ -22,7 +22,7 @@ export class RepoService {
 		private readonly eventEmitter: EventEmitter2,
 	) {}
 
-	async isMaxRepoCount(count: number) {
+	isMaxRepoCount(count: number) {
 		// Maximum repo count
 		if (count >= 5) {
 			return true;
