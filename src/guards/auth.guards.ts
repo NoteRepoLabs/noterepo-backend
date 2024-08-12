@@ -1,43 +1,58 @@
 import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { FastifyRequest } from 'fastify';
-import { JwtService } from '../jwt/jwt.service';
+	CanActivate,
+	ExecutionContext,
+	Injectable,
+	UnauthorizedException,
+} from "@nestjs/common";
+import { FastifyRequest } from "fastify";
+import { JwtService } from "../jwt/jwt.service";
+import { IS_PUBLIC_KEY } from "./auth-public.decorator";
+import { Reflector } from "@nestjs/core";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) { }
+	constructor(
+		private readonly jwtService: JwtService,
+		private reflector: Reflector,
+	) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    //Extract Cookie from request
-    const token = this.extractTokenFromHeader(request);
+	async canActivate(context: ExecutionContext): Promise<boolean> {
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+			context.getHandler(),
+			context.getClass(),
+		]);
 
-    if (!token) throw new UnauthorizedException('User Unauthorized');
+		// Check if it's a public route
+		if (isPublic) {
+			return true;
+		}
 
-    try {
-      //Verify the cookie jwt
-      const payload = await this.jwtService.verifyAccessToken(token);
+		const request = context.switchToHttp().getRequest();
+		//Extract Cookie from request
+		const token = this.extractTokenFromHeader(request);
 
-      request['user'] = payload;
-    } catch (err) {
-      throw new UnauthorizedException('Invalid Token or Token Expired');
-    }
+		if (!token) throw new UnauthorizedException("User Unauthorized");
 
-    return true;
-  }
+		try {
+			//Verify the cookie jwt
+			const payload = await this.jwtService.verifyAccessToken(token);
 
-  private extractTokenFromHeader(req: FastifyRequest): string | undefined {
-    const authHeader = req.headers['authorization'];
+			request["user"] = payload;
+		} catch (err) {
+			throw new UnauthorizedException("Invalid Token or Token Expired");
+		}
 
-    //If no auth header
-    if (!authHeader) return null;
+		return true;
+	}
 
-    const [authType, token] = authHeader.split(' ');
+	private extractTokenFromHeader(req: FastifyRequest): string | undefined {
+		const authHeader = req.headers["authorization"];
 
-    return authType === 'Bearer' ? token : null;
-  }
+		//If no auth header
+		if (!authHeader) return null;
+
+		const [authType, token] = authHeader.split(" ");
+
+		return authType === "Bearer" ? token : null;
+	}
 }

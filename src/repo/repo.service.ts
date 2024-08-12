@@ -78,7 +78,6 @@ export class RepoService {
 		return repo;
 	}
 
-
 	async findRepoById(repoId: string, includeFile: boolean) {
 		return await this.prisma.repo.findUnique({
 			where: { id: repoId },
@@ -98,7 +97,6 @@ export class RepoService {
 	}
 
 	async getAllRepos() {
-
 		const repo = await this.prisma.repo.findMany({});
 
 		if (!repo) {
@@ -136,7 +134,6 @@ export class RepoService {
 
 		return repo;
 	}
-
 
 	async bookmarkRepo(userId: string, repoId: string) {
 		const repo = await this.prisma.repo.findUnique({
@@ -250,7 +247,6 @@ export class RepoService {
 
 			repo.files.forEach((file) => fileIds.push(file.id));
 
-
 			//Delete all files relations to the repo and delete repo
 			await this.prisma.$transaction([
 				this.prisma.repo.update({
@@ -274,7 +270,7 @@ export class RepoService {
 			this.eventEmitter.emitAsync("searchFile.deleted", [fileIds]);
 
 			//Delete all files from cloudinary, to be implemented
- 			await this.cloudinary.deleteFilesFromStorage(fileNames);
+			await this.cloudinary.deleteFilesFromStorage(fileNames);
 		} else {
 			//Delete only the repo
 			await this.prisma.user.update({

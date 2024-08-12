@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   Param,
@@ -14,13 +15,13 @@ import { CreateRepoDto } from './dto/create-repo.dto';
 import { plainToInstance } from 'class-transformer';
 import { RepoResponseDto, ReposResponseDto } from './dto/repo-response.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-
 import { AuthGuard } from '../guards/auth.guards';
 import {
   bookmarkRepoIdsResponseDto,
   bookmarkResponseDto,
 } from './dto/bookmark-response.dto';
 import { Throttle, seconds } from '@nestjs/throttler';
+import {Public} from '../guards/auth-public.decorator'
 
 @ApiTags('Repository')
 @ApiBearerAuth("access-token")
@@ -89,6 +90,27 @@ export class RepoController {
     @Param('userId', ParseUUIDPipe) userId: string,@Param('repoId',ParseUUIDPipe) repoId: string
   ): Promise<RepoResponseDto> {
     const response = await this.repoService.getUserRepo(userId,repoId);
+
+    return plainToInstance(RepoResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Fetch a specific repository for sharing' })
+  @ApiResponse({
+    status: 200,
+    description: "Fetches a specific repo for sharing",
+    type: RepoResponseDto,
+  })
+  @Public()// Public route
+  @Get('repo/:repoId/share')
+  async getRepoForSharing(
+    @Param('repoId',ParseUUIDPipe) repoId: string
+  ): Promise<RepoResponseDto> {
+    const response = await this.repoService.findRepoById(repoId,true);
+
+    //Check if the repo is public before sharing
+    if(!response.isPublic){
+      throw new ForbiddenException("Unauthorized access, repo not public")
+    }
 
     return plainToInstance(RepoResponseDto, response);
   }
