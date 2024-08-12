@@ -1,5 +1,6 @@
 import {
 	ConflictException,
+	ForbiddenException,
 	HttpException,
 	HttpStatus,
 	Injectable,
@@ -31,16 +32,32 @@ export class RepoService {
 			throw new NotFoundException("Cannot create repo, user not found");
 		}
 
-		const repo = await this.prisma.repo.create({
-			data: {
-				name,
-				description,
-				isPublic,
-				tags,
-				user: { connect: { id: userId } },
-			},
-			include: { user: false },
-		});
+		// Check amount of user's repo
+		if (user.repoCount >= 5) {
+			throw new ForbiddenException("Maximum allowed repos reached");
+		}
+
+		// Create repo and update user's repo count
+		const [repo, updatedUser] = await this.prisma.$transaction([
+			this.prisma.repo.create({
+				data: {
+					name,
+					description,
+					isPublic,
+					tags,
+					user: { connect: { id: userId } },
+				},
+				include: { user: false },
+			}),
+			this.prisma.user.update({
+				where: { id: userId },
+				data: {
+					repoCount: {
+						increment: 1,
+					},
+				},
+			}),
+		]);
 
 		if (repo.isPublic) {
 			const repoCreatedEvent = new RepoCreatedEvent();
@@ -50,7 +67,7 @@ export class RepoService {
 			repoCreatedEvent.isPublic = repo.isPublic;
 			repoCreatedEvent.description = repo.description;
 			repoCreatedEvent.createdAt = repo.createdAt;
-			repoCreatedEvent.userId = repo.userId;
+			repoCreatedEvent.userId = updatedUser.id; // User id
 
 			//Add repo to search engine
 			await this.eventEmitter.emitAsync("searchRepo.created", [
@@ -61,7 +78,27 @@ export class RepoService {
 		return repo;
 	}
 
-	async getAllRepo() {
+
+	async findRepoById(repoId: string, includeFile: boolean) {
+		return await this.prisma.repo.findUnique({
+			where: { id: repoId },
+			include: { files: includeFile },
+		});
+	}
+
+	async findRepoByIdAndUserId(
+		repoId: string,
+		userId: string,
+		includeFile: boolean,
+	) {
+		return await this.prisma.repo.findUnique({
+			where: { id: repoId, userId },
+			include: { files: includeFile },
+		});
+	}
+
+	async getAllRepos() {
+
 		const repo = await this.prisma.repo.findMany({});
 
 		if (!repo) {
@@ -99,6 +136,7 @@ export class RepoService {
 
 		return repo;
 	}
+
 
 	async bookmarkRepo(userId: string, repoId: string) {
 		const repo = await this.prisma.repo.findUnique({
@@ -212,7 +250,8 @@ export class RepoService {
 
 			repo.files.forEach((file) => fileIds.push(file.id));
 
-			//Delete all file relations to repo and delete repo
+
+			//Delete all files relations to the repo and delete repo
 			await this.prisma.$transaction([
 				this.prisma.repo.update({
 					where: { id: repoId },
@@ -221,7 +260,10 @@ export class RepoService {
 				}),
 				this.prisma.user.update({
 					where: { id: userId },
-					data: { Repo: { delete: { id: repoId } } },
+					data: {
+						Repo: { delete: { id: repoId } },
+						repoCount: { decrement: 1 },
+					},
 				}),
 			]);
 
@@ -232,12 +274,12 @@ export class RepoService {
 			this.eventEmitter.emitAsync("searchFile.deleted", [fileIds]);
 
 			//Delete all files from cloudinary, to be implemented
-			await this.cloudinary.deleteFiles(fileNames);
+ 			await this.cloudinary.deleteFilesFromStorage(fileNames);
 		} else {
 			//Delete only the repo
 			await this.prisma.user.update({
 				where: { id: userId },
-				data: { Repo: { delete: { id: repoId } } },
+				data: { Repo: { delete: { id: repoId } }, repoCount: { decrement: 1 } },
 			});
 
 			//Delete Repo from Search Engine

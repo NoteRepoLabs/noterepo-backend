@@ -17,7 +17,7 @@ import { SignInDto, signInSchema } from './dto/sign-in.dto';
 import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUsernameDto } from './dto/set-username.dto';
 import { SearchService } from '../search/search.service';
 import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
@@ -138,13 +138,14 @@ export class AuthController {
     return plainToInstance(AuthResponseDto, response);
   }
 
-  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiOperation({ summary: 'Refresh the access token using a refresh token' })
   @Get('refreshToken/:userId')
   @ApiResponse({
     status: 200,
     description: 'User access token refresh',
     type: RefreshTokenResponseDto,
   })
+  @ApiBearerAuth("refresh-token")
   @UseGuards(RefreshAuthGuard)
   @ApiResponse({ status: 403, description: 'Access Denied' })
   async refreshToken(
