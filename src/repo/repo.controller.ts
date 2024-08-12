@@ -12,7 +12,7 @@ import {
 import { RepoService } from './repo.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
 import { plainToInstance } from 'class-transformer';
-import { RepoResponseDto } from './dto/repo-response.dto';
+import { RepoResponseDto, ReposResponseDto } from './dto/repo-response.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../guards/auth.guards';
 import {
@@ -64,17 +64,34 @@ export class RepoController {
   @ApiResponse({
     status: 200,
     description: "Fetches a user's repos",
-    type: RepoResponseDto,
+    type: ReposResponseDto,
     isArray: true,
   })
   @Get(':userId/repo')
-  async getUserRepo(
+  async getAllUserRepos(
     @Param('userId', ParseUUIDPipe) userId: string,
-  ): Promise<RepoResponseDto[]> {
-    const response = await this.repoService.getUserRepo(userId);
+  ): Promise<ReposResponseDto[]> {
+    const response = await this.repoService.getAllUserRepos(userId);
+
+    return plainToInstance(ReposResponseDto, response);
+  }
+
+  @ApiOperation({ summary: 'Fetch a specific repository of a user' })
+  @ApiResponse({
+    status: 200,
+    description: "Fetches a specific repo of the user",
+    type: RepoResponseDto,
+  })
+  @Get(':userId/repo/:repoId')
+  async getUserRepo(
+    @Param('userId', ParseUUIDPipe) userId: string,@Param('repoId',ParseUUIDPipe) repoId: string
+  ): Promise<RepoResponseDto> {
+    const response = await this.repoService.getUserRepo(userId,repoId);
 
     return plainToInstance(RepoResponseDto, response);
   }
+
+
 
   @Throttle({ throttlers: { limit: 7, ttl: seconds(60) } })
   @ApiOperation({ summary: 'Bookmark a repository of a user' })
