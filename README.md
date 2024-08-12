@@ -6,13 +6,12 @@ Web server for the NoteRepo web client written with NestJS and Typescript.
 
 We're actively looking for contributors as we're only two engineers working on it at the moment. So if you know NestJS and optionally Typescript, feel free to submit pull requests, they're always welcome!
 
-## Building the client
+## Setting Up Your Dev Environment
 
 To get started, git clone the repository and cd into it.
 
 ```sh
 git clone https://github.com/NoteRepoLabs/noterepo-backend.git
-
 cd noterepo-backend
 ```
 
@@ -39,7 +38,7 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
-## Running Test
+## Running Tests
 
 ```sh
 # unit tests
