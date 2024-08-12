@@ -1,35 +1,33 @@
-import { Exclude } from 'class-transformer';
+import { Exclude } from "class-transformer";
 
 /*
 For excluding some fields in response object eg password
 */
 export class AuthResponseDto {
-  id: number;
+	id: number;
 
-  username: string;
+	username: string;
 
-  email: string;
+	email: string;
 
-  @Exclude()
-  password: string;
+	@Exclude()
+	password: string;
 
-  isVerified: boolean;
+	isVerified: boolean;
 
-  role: Role;
+	role: Role;
 
-  createdAt: Date;
+	createdAt: Date;
 
-  @Exclude()
-  updatedAt: Date;
+	@Exclude()
+	updatedAt: Date;
 
-  access_token: string;
+	access_token: string;
 
-  refresh_token: string;
-
-  search_token: string;
+	refresh_token: string;
 }
 
 export enum Role {
-  USER,
-  ADMIN,
+	USER,
+	ADMIN,
 }
