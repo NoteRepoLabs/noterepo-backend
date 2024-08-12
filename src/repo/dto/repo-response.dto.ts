@@ -1,26 +1,48 @@
-import { Exclude } from 'class-transformer';
+import { Exclude } from "class-transformer";
 
 /*
 For excluding some fields in response object eg password
 */
+export class ReposResponseDto {
+	id: string;
+
+	name: string;
+
+	description: string;
+
+	@Exclude()
+	user: unknown;
+
+	isPublic: boolean;
+
+	tags: string[];
+
+	createdAt: Date;
+
+	_count: { files: number };
+
+	@Exclude()
+	updatedAt: Date;
+}
+
 export class RepoResponseDto {
-  id: string;
+	id: string;
 
-  name: string;
+	name: string;
 
-  description: string;
+	description: string;
 
-  @Exclude()
-  user: unknown;
+	@Exclude()
+	user: unknown;
 
-  isPublic: boolean;
+	isPublic: boolean;
 
-  files: unknown;
+	files: unknown;
 
-  tags: string[];
+	tags: string[];
 
-  createdAt: Date;
+	createdAt: Date;
 
-  @Exclude()
-  updatedAt: Date;
+	@Exclude()
+	updatedAt: Date;
 }
