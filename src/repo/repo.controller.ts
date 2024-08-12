@@ -56,7 +56,7 @@ export class RepoController {
   })
   @Get('repo')
   async getAllRepo(): Promise<RepoResponseDto[]> {
-    const response = await this.repoService.getAllRepo();
+    const response = await this.repoService.getAllRepos();
 
     return plainToInstance(RepoResponseDto, response);
   }
