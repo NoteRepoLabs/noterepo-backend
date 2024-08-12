@@ -22,14 +22,6 @@ export class RepoService {
 		private readonly eventEmitter: EventEmitter2,
 	) {}
 
-	isMaxRepoCount(count: number) {
-		// Maximum repo count
-		if (count >= 5) {
-			return true;
-		}
-		return false;
-	}
-
 	async createRepo(
 		userId: string,
 		{ name, description, tags, isPublic }: CreateRepoDto,
@@ -41,7 +33,7 @@ export class RepoService {
 		}
 
 		// Check amount of user's repo
-		if (this.isMaxRepoCount(user.repoCount)) {
+		if (user.repoCount >= 5) {
 			throw new ForbiddenException("Maximum allowed repos reached");
 		}
 
@@ -86,7 +78,25 @@ export class RepoService {
 		return repo;
 	}
 
-	async getAllRepo() {
+	async findRepoById(repoId: string, includeFile: boolean) {
+		return await this.prisma.repo.findUnique({
+			where: { id: repoId },
+			include: { files: includeFile },
+		});
+	}
+
+	async findRepoByIdAndUserId(
+		repoId: string,
+		userId: string,
+		includeFile: boolean,
+	) {
+		return await this.prisma.repo.findUnique({
+			where: { id: repoId, userId },
+			include: { files: includeFile },
+		});
+	}
+
+	async getAllRepos() {
 		const repo = await this.prisma.repo.findMany({});
 
 		if (!repo) {
@@ -224,7 +234,7 @@ export class RepoService {
 
 			repo.files.forEach((file) => fileIds.push(file.id));
 
-			//Delete all files relations to repo and delete repo
+			//Delete all files relations to the repo and delete repo
 			await this.prisma.$transaction([
 				this.prisma.repo.update({
 					where: { id: repoId },
@@ -247,7 +257,7 @@ export class RepoService {
 			this.eventEmitter.emitAsync("searchFile.deleted", [fileIds]);
 
 			//Delete all files from cloudinary, to be implemented
-			await this.cloudinary.deleteFiles(fileNames);
+			await this.cloudinary.deleteFilesFromStorage(fileNames);
 		} else {
 			//Delete only the repo
 			await this.prisma.user.update({

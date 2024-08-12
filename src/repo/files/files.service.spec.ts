@@ -6,13 +6,14 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UsersModule } from '../../users/users.module';
 import { UsersService } from '../../users/users.service';
 import { EmailService } from '../../email/email.service';
+import { RepoModule } from '../repo.module';
 
 describe('FilesService', () => {
   let service: FilesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [UsersModule, EventEmitterModule.forRoot()],
+      imports: [UsersModule, RepoModule,EventEmitterModule.forRoot()],
       providers: [
         FilesService,
         PrismaService,
