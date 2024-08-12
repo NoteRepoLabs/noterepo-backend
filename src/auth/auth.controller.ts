@@ -19,7 +19,6 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUsernameDto } from './dto/set-username.dto';
-import { SearchService } from '../search/search.service';
 import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { RefreshAuthGuard } from '../guards/refreshGuard.guards';
 
@@ -28,7 +27,6 @@ import { RefreshAuthGuard } from '../guards/refreshGuard.guards';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly searchService: SearchService,
   ) { }
 
   @ApiOperation({ summary: 'Register a new user' })
@@ -73,15 +71,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const user = await this.authService.signIn(body, res);
-
-    //Generate search tenant token
-    const search_token = await this.searchService.createTenantSearchToken(
-      user.id,
-    );
-
-    //Generate response with search token
-    const response = { ...user, search_token };
+    const response = await this.authService.signIn(body, res);
 
     /**  Maps response dto to response from the service, thereby excluding fields from dto **/
     return plainToInstance(AuthResponseDto, response);
@@ -126,14 +116,7 @@ export class AuthController {
     @Param('userId', ParseUUIDPipe) id: string,
   ): Promise<AuthResponseDto> {
     //Get Response from service
-    const user = await this.authService.setInitialUsername(id, body);
-
-    const search_token = await this.searchService.createTenantSearchToken(
-      user.id,
-    );
-
-    //Generate user response with search token
-    const response = { ...user, search_token };
+    const response = await this.authService.setInitialUsername(id, body);
 
     return plainToInstance(AuthResponseDto, response);
   }
