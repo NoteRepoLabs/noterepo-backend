@@ -1,236 +1,249 @@
 import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateRepoDto } from './dto/create-repo.dto';
-import { CloudinaryService } from '../storage/cloudinary/cloudinary.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { RepoCreatedEvent } from './events/repo-events';
-import { UsersService } from '../users/users.service';
+	ConflictException,
+	HttpException,
+	HttpStatus,
+	Injectable,
+	NotFoundException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateRepoDto } from "./dto/create-repo.dto";
+import { CloudinaryService } from "../storage/cloudinary/cloudinary.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { RepoCreatedEvent } from "./events/repo-events";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class RepoService {
-  constructor(
-    private readonly userService: UsersService,
-    private readonly prisma: PrismaService,
-    private readonly cloudinary: CloudinaryService,
-    private readonly eventEmitter: EventEmitter2,
-  ) { }
+	constructor(
+		private readonly userService: UsersService,
+		private readonly prisma: PrismaService,
+		private readonly cloudinary: CloudinaryService,
+		private readonly eventEmitter: EventEmitter2,
+	) {}
 
-  async createRepo(
-    userId: string,
-    { name, description, tags, isPublic }: CreateRepoDto,
-  ) {
-    const user = await this.userService.findUserById(userId);
+	async createRepo(
+		userId: string,
+		{ name, description, tags, isPublic }: CreateRepoDto,
+	) {
+		const user = await this.userService.findUserById(userId);
 
-    if (!user) {
-      throw new NotFoundException('Cannot create repo, user not found');
-    }
+		if (!user) {
+			throw new NotFoundException("Cannot create repo, user not found");
+		}
 
-    const repo = await this.prisma.repo.create({
-      data: {
-        name,
-        description,
-        isPublic,
-        tags,
-        user: { connect: { id: userId } },
-      },
-      include: { user: false },
-    });
+		const repo = await this.prisma.repo.create({
+			data: {
+				name,
+				description,
+				isPublic,
+				tags,
+				user: { connect: { id: userId } },
+			},
+			include: { user: false },
+		});
 
-    if (repo.isPublic) {
-      const repoCreatedEvent = new RepoCreatedEvent();
-      repoCreatedEvent.id = repo.id;
-      repoCreatedEvent.name = repo.name;
-      repoCreatedEvent.tags = repo.tags;
-      repoCreatedEvent.isPublic = repo.isPublic;
-      repoCreatedEvent.description = repo.description;
-      repoCreatedEvent.createdAt = repo.createdAt;
-      repoCreatedEvent.userId = repo.userId;
+		if (repo.isPublic) {
+			const repoCreatedEvent = new RepoCreatedEvent();
+			repoCreatedEvent.id = repo.id;
+			repoCreatedEvent.name = repo.name;
+			repoCreatedEvent.tags = repo.tags;
+			repoCreatedEvent.isPublic = repo.isPublic;
+			repoCreatedEvent.description = repo.description;
+			repoCreatedEvent.createdAt = repo.createdAt;
+			repoCreatedEvent.userId = repo.userId;
 
-      //Add repo to search engine
-      await this.eventEmitter.emitAsync('searchRepo.created', [
-        repoCreatedEvent,
-      ]);
-    }
+			//Add repo to search engine
+			await this.eventEmitter.emitAsync("searchRepo.created", [
+				repoCreatedEvent,
+			]);
+		}
 
-    return repo;
-  }
+		return repo;
+	}
 
-  async getAllRepo() {
-    const repo = await this.prisma.repo.findMany({});
+	async getAllRepo() {
+		const repo = await this.prisma.repo.findMany({});
 
-    if (!repo) {
-      throw new HttpException('No Repo Found', HttpStatus.NOT_FOUND);
-    }
+		if (!repo) {
+			throw new HttpException("No Repo Found", HttpStatus.NOT_FOUND);
+		}
 
-    return repo;
-  }
+		return repo;
+	}
 
-  async getUserRepo(userId: string) {
-    const repo = await this.prisma.repo.findMany({
-      where: { user: { id: userId } },
-      include: { files: true },
-    });
+	async getAllUserRepos(userId: string) {
+		const repo = await this.prisma.repo.findMany({
+			where: { user: { id: userId } },
+			include: { _count: { select: { files: true } } },
+		});
 
-    if (!repo) {
-      throw new HttpException(
-        'No repo belongs to the user',
-        HttpStatus.NOT_FOUND,
-      );
-    }
+		if (!repo) {
+			throw new HttpException(
+				"No repo belongs to the user",
+				HttpStatus.NOT_FOUND,
+			);
+		}
 
-    return repo;
-  }
+		return repo;
+	}
 
-  async bookmarkRepo(userId: string, repoId: string) {
-    const repo = await this.prisma.repo.findUnique({
-      where: { id: repoId },
-    });
+	async getUserRepo(userId: string, repoId: string) {
+		const repo = await this.prisma.repo.findUnique({
+			where: { id: repoId, user: { id: userId } },
+			include: { files: true },
+		});
 
-    if (!repo) {
-      throw new NotFoundException('Repo not found');
-    }
+		if (!repo) {
+			throw new HttpException("Repo not found", HttpStatus.NOT_FOUND);
+		}
 
-    const isBookmarked = await this.prisma.bookmark.findUnique({
-      where: { userId_repoId: { userId, repoId } },
-    });
+		return repo;
+	}
 
-    if (isBookmarked) {
-      throw new ConflictException('Repo Already Bookmarked');
-    }
+	async bookmarkRepo(userId: string, repoId: string) {
+		const repo = await this.prisma.repo.findUnique({
+			where: { id: repoId },
+		});
 
-    const bookmarked = await this.prisma.bookmark.create({
-      data: { repoId, user: { connect: { id: userId } } },
-    });
+		if (!repo) {
+			throw new NotFoundException("Repo not found");
+		}
 
-    return bookmarked;
-  }
+		const isBookmarked = await this.prisma.bookmark.findUnique({
+			where: { userId_repoId: { userId, repoId } },
+		});
 
-  async unbookmarkRepo(userId: string, repoId: string) {
-    const repo = await this.prisma.repo.findUnique({
-      where: { id: repoId },
-    });
+		if (isBookmarked) {
+			throw new ConflictException("Repo Already Bookmarked");
+		}
 
-    if (!repo) {
-      throw new NotFoundException('Repo not found');
-    }
+		const bookmarked = await this.prisma.bookmark.create({
+			data: { repoId, user: { connect: { id: userId } } },
+		});
 
-    const isBookmarked = await this.prisma.bookmark.findUnique({
-      where: { userId_repoId: { userId, repoId } },
-    });
+		return bookmarked;
+	}
 
-    if (!isBookmarked) {
-      throw new NotFoundException('Repo Not Bookmarked');
-    }
+	async unbookmarkRepo(userId: string, repoId: string) {
+		const repo = await this.prisma.repo.findUnique({
+			where: { id: repoId },
+		});
 
-    await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { bookmarks: { delete: { id: isBookmarked.id } } },
-      }),
-    ]);
+		if (!repo) {
+			throw new NotFoundException("Repo not found");
+		}
 
-    return;
-  }
+		const isBookmarked = await this.prisma.bookmark.findUnique({
+			where: { userId_repoId: { userId, repoId } },
+		});
 
-  async getBookmarks(userId: string) {
-    const bookmarks = await this.prisma.bookmark.findMany({
-      where: { userId },
-      select: { repoId: true },
-    });
+		if (!isBookmarked) {
+			throw new NotFoundException("Repo Not Bookmarked");
+		}
 
-    if (!bookmarks) {
-      throw new NotFoundException('No bookmarks found');
-    }
+		await this.prisma.$transaction([
+			this.prisma.user.update({
+				where: { id: userId },
+				data: { bookmarks: { delete: { id: isBookmarked.id } } },
+			}),
+		]);
 
-    const bookmarkIds: string[] = [];
+		return;
+	}
 
-    bookmarks.forEach((bookmark) => bookmarkIds.push(bookmark.repoId));
+	async getBookmarks(userId: string) {
+		const bookmarks = await this.prisma.bookmark.findMany({
+			where: { userId },
+			select: { repoId: true },
+		});
 
-    const bookmarkedRepos = await this.prisma.repo.findMany({
-      where: { id: { in: bookmarkIds } },
-    });
+		if (!bookmarks) {
+			throw new NotFoundException("No bookmarks found");
+		}
 
-    return bookmarkedRepos;
-  }
+		const bookmarkIds: string[] = [];
 
-  async getBookmarksRepoIds(userId: string) {
-    const bookmarks = await this.prisma.bookmark.findMany({
-      where: { userId },
-      select: { repoId: true },
-    });
+		bookmarks.forEach((bookmark) => bookmarkIds.push(bookmark.repoId));
 
-    if (!bookmarks) {
-      throw new NotFoundException('No bookmarks found');
-    }
+		const bookmarkedRepos = await this.prisma.repo.findMany({
+			where: { id: { in: bookmarkIds } },
+		});
 
-    const bookmarkIds: string[] = [];
+		return bookmarkedRepos;
+	}
 
-    bookmarks.forEach((bookmark) => bookmarkIds.push(bookmark.repoId));
+	async getBookmarksRepoIds(userId: string) {
+		const bookmarks = await this.prisma.bookmark.findMany({
+			where: { userId },
+			select: { repoId: true },
+		});
 
-    return { repoIds: bookmarkIds };
-  }
+		if (!bookmarks) {
+			throw new NotFoundException("No bookmarks found");
+		}
 
-  async deleteUserRepo(userId: string, repoId: string) {
-    const repo = await this.prisma.repo.findUnique({
-      where: { id: repoId, userId },
-      include: { files: true },
-    });
+		const bookmarkIds: string[] = [];
 
-    if (!repo) {
-      throw new NotFoundException(
-        'Repository not found or does not belong to the user',
-      );
-    }
+		bookmarks.forEach((bookmark) => bookmarkIds.push(bookmark.repoId));
 
-    //If user has files
-    if (repo.files.length > 0) {
-      //For storing file names
-      const fileNames: string[] = [];
+		return { repoIds: bookmarkIds };
+	}
 
-      const fileIds: string[] = [];
+	async deleteUserRepo(userId: string, repoId: string) {
+		const repo = await this.prisma.repo.findUnique({
+			where: { id: repoId, userId },
+			include: { files: true },
+		});
 
-      repo.files.forEach((file) => fileNames.push(file.publicName));
+		if (!repo) {
+			throw new NotFoundException(
+				"Repository not found or does not belong to the user",
+			);
+		}
 
-      repo.files.forEach((file) => fileIds.push(file.id));
+		//If user has files
+		if (repo.files.length > 0) {
+			//For storing file names
+			const fileNames: string[] = [];
 
-      //Delete all file relations to repo and delete repo
-      await this.prisma.$transaction([
-        this.prisma.repo.update({
-          where: { id: repoId },
-          data: { files: { deleteMany: {} } },
-          include: { files: true },
-        }),
-        this.prisma.user.update({
-          where: { id: userId },
-          data: { Repo: { delete: { id: repoId } } },
-        }),
-      ]);
+			const fileIds: string[] = [];
 
-      //Delete Repos from Search Engine
-      this.eventEmitter.emitAsync('searchRepo.deleted', [repo.id]);
+			repo.files.forEach((file) => fileNames.push(file.publicName));
 
-      //Delete Files from Search Engine
-      this.eventEmitter.emitAsync('searchFile.deleted', [fileIds]);
+			repo.files.forEach((file) => fileIds.push(file.id));
 
-      //Delete all files from cloudinary, to be implemented
-      await this.cloudinary.deleteFiles(fileNames);
-    } else {
-      //Delete only the repo
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { Repo: { delete: { id: repoId } } },
-      });
+			//Delete all file relations to repo and delete repo
+			await this.prisma.$transaction([
+				this.prisma.repo.update({
+					where: { id: repoId },
+					data: { files: { deleteMany: {} } },
+					include: { files: true },
+				}),
+				this.prisma.user.update({
+					where: { id: userId },
+					data: { Repo: { delete: { id: repoId } } },
+				}),
+			]);
 
-      //Delete Repo from Search Engine
-      this.eventEmitter.emitAsync('searchRepo.deleted', [repo.id]);
-    }
+			//Delete Repos from Search Engine
+			this.eventEmitter.emitAsync("searchRepo.deleted", [repo.id]);
 
-    return;
-  }
+			//Delete Files from Search Engine
+			this.eventEmitter.emitAsync("searchFile.deleted", [fileIds]);
+
+			//Delete all files from cloudinary, to be implemented
+			await this.cloudinary.deleteFiles(fileNames);
+		} else {
+			//Delete only the repo
+			await this.prisma.user.update({
+				where: { id: userId },
+				data: { Repo: { delete: { id: repoId } } },
+			});
+
+			//Delete Repo from Search Engine
+			this.eventEmitter.emitAsync("searchRepo.deleted", [repo.id]);
+		}
+
+		return;
+	}
 }
