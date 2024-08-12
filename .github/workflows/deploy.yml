@@ -1,15 +1,15 @@
 name: Noterepo Deploy
-
 on:
   workflow_run:
     workflows: ["Run Noterepo Tests"]
     types:
       - completed
-
+    branches:
+      - main
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'  
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Deploy to production
         uses: johnbeynon/render-deploy-action@v0.0.8
