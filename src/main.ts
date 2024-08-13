@@ -1,4 +1,5 @@
 //Dependencies
+import "./sentry-instrument"
 import { NestFactory, Reflector } from "@nestjs/core";
 import {
 	FastifyAdapter,
