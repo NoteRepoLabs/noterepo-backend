@@ -10,7 +10,7 @@ Sentry.init({
 	],
 
 	tracesSampleRate: 1.0,
-
+	environment: process.env.NODE_ENV,
 	// Set sampling rate for profiling
 	// This is relative to tracesSampleRate
 	profilesSampleRate: 1.0,
