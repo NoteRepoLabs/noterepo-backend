@@ -1,5 +1,4 @@
 name: Run Noterepo Tests
-
 on:
   push:
     branches:
@@ -11,23 +10,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Nodejs 20 Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Enable corepack
         run: corepack enable && corepack install # use the in-repo yarn version
-
       - name: Setup Yarn in Node
         uses: actions/setup-node@v4
         with:
           cache: 'yarn' # uses the system node, which was updated prior.
-
       - name: Install Dependencies
         run: rm -rf node_modules && yarn install --frozen-lockfile
-
+      - name: Build Project
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: yarn build
       - name: Run Tests
         env:
           MAIL_DOMAIN: ${{ secrets.MAIL_DOMAIN }}
@@ -42,5 +40,5 @@ jobs:
           MEILISEARCH_SEARCH_KEY_UID: ${{ secrets.MEILISEARCH_SEARCH_KEY_UID }}
           TEST_MAILGUN_API_KEY: ${{ secrets.TEST_MAILGUN_API_KEY }}
           MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
-
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: yarn run test:e2e && yarn run test
