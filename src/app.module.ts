@@ -16,13 +16,14 @@ import {
 	ThrottlerGuard,
 } from "@nestjs/throttler";
 import { ThrottlerStorageRedisService } from "nestjs-throttler-storage-redis";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { RepoModule } from "./repo/repo.module";
 import { StorageModule } from "./storage/storage.module";
 import { FilesModule } from "./repo/files/files.module";
 import { SearchModule } from "./search/search.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { SearchService } from "./search/search.service";
+import { ResponseInterceptor } from "./utils/response/response.interceptor";
 
 @Module({
 	imports: [
@@ -87,6 +88,10 @@ import { SearchService } from "./search/search.service";
 		AppService,
 		JwtService,
 		{ provide: APP_GUARD, useClass: ThrottlerGuard },
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: ResponseInterceptor,
+		},
 		SearchService,
 	],
 })
