@@ -18,10 +18,10 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 //Imports
 import { AppModule } from "./app.module";
-import { ResponseInterceptor } from "./utils/response/response.interceptor";
 import { logger } from "./utils/requestLogger/request.logger";
 import fastifyHelmet from "@fastify/helmet";
 import multiPart from "@fastify/multipart";
+import { CustomExceptionFilter } from "./utils/response/httpException.filter";
 
 async function bootstrap() {
 	//Fastify Adapter
@@ -113,8 +113,6 @@ bootstrap().then(() => {
 });
 
 export function registerGlobals(app: INestApplication) {
-	app.useGlobalInterceptors(
-		new ClassSerializerInterceptor(app.get(Reflector)),
-		new ResponseInterceptor(),
-	);
+	app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+	app.useGlobalFilters(new CustomExceptionFilter());
 }
