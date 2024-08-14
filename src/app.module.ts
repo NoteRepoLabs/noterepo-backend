@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { SentryModule } from "@sentry/nestjs/setup";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule } from "@nestjs/config";
@@ -8,7 +9,6 @@ import { JwtService } from "./jwt/jwt.service";
 import { EmailModule } from "./email/email.module";
 import { UsersModule } from "./users/users.module";
 import * as Joi from "joi";
-import { SentryModule } from "@sentry/nestjs/setup";
 import {
 	ThrottlerModule,
 	minutes,
@@ -22,6 +22,7 @@ import { StorageModule } from "./storage/storage.module";
 import { FilesModule } from "./repo/files/files.module";
 import { SearchModule } from "./search/search.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
+import { SearchService } from "./search/search.service";
 
 @Module({
 	imports: [
@@ -85,8 +86,8 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 	providers: [
 		AppService,
 		JwtService,
-
 		{ provide: APP_GUARD, useClass: ThrottlerGuard },
+		SearchService,
 	],
 })
 export class AppModule {}
