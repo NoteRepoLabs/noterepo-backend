@@ -1,5 +1,7 @@
+// Import this first!
+import "./sentry/instrument";
+
 //Dependencies
-import "./sentry-instrument"
 import { NestFactory, Reflector } from "@nestjs/core";
 import {
 	FastifyAdapter,
@@ -20,7 +22,6 @@ import { ResponseInterceptor } from "./utils/response/response.interceptor";
 import { logger } from "./utils/requestLogger/request.logger";
 import fastifyHelmet from "@fastify/helmet";
 import multiPart from "@fastify/multipart";
-import { SearchService } from "./search/search.service";
 
 async function bootstrap() {
 	//Fastify Adapter
@@ -104,9 +105,6 @@ async function bootstrap() {
 
 	const HOST = process.env.NODE_ENV === "development" ? "127.0.0.1" : "0.0.0.0";
 
-	//Create and update search engine settings
-	await InitializeSearchEngine();
-
 	await app.listen(process.env.PORT, HOST);
 }
 
@@ -119,10 +117,4 @@ export function registerGlobals(app: INestApplication) {
 		new ClassSerializerInterceptor(app.get(Reflector)),
 		new ResponseInterceptor(),
 	);
-}
-
-async function InitializeSearchEngine() {
-	const searchEngine = new SearchService();
-	await searchEngine.createIndex();
-	await searchEngine.updateIndexSettings();
 }
