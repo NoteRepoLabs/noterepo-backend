@@ -21,6 +21,8 @@ const filetypes = [
 	"application/vnd.ms-powerpoint",
 	"application/msword",
 	"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	"text/plain",
 ];
 
 //File field name supported
