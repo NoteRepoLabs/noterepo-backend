@@ -19,10 +19,15 @@ export class ResponseInterceptor implements NestInterceptor {
 		const ctx = context.switchToHttp();
 		const response = ctx.getResponse();
 		//const request = ctx.getRequest();
+		const message =
+			response.statusCode < 400
+				? res?.message || "Request successful"
+				: res?.message || "Request failed";
 
 		return {
 			status: "success",
 			statusCode: response.statusCode,
+			message,
 			payload: res,
 		};
 	}
