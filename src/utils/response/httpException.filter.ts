@@ -14,13 +14,15 @@ export class CustomExceptionFilter implements ExceptionFilter {
 		const response = ctx.getResponse();
 		const request = ctx.getRequest();
 
-		// Capture the exception with Sentry
-		Sentry.captureException(exception);
-
 		const status =
 			exception instanceof HttpException
 				? exception.getStatus()
 				: HttpStatus.INTERNAL_SERVER_ERROR;
+
+		if (status >= 500) {
+			// Capture the exception with Sentry
+			Sentry.captureException(exception);
+		}
 
 		response.status(status).send({
 			status: "fail",
