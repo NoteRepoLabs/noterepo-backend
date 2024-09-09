@@ -67,7 +67,7 @@ import { ResponseInterceptor } from "./utils/response/response.interceptor";
 			//Rate limiting
 			throttlers: [
 				{ limit: 10, ttl: seconds(60) },
-				{ limit: 40, ttl: minutes(30) },
+				{ limit: 100, ttl: minutes(30) },
 			],
 
 			// connection url
