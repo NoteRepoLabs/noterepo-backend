@@ -18,6 +18,7 @@ model User {
   username      String?    @unique
   email         String     @unique
   password      String
+  bio           String?     @db.VarChar(225)
   isVerified    Boolean    @default(false)
   role          Role       @default(USER)
   refresh_token String?
