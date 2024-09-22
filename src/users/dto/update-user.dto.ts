@@ -2,7 +2,7 @@ import { Role } from "@prisma/client";
 import { JoiSchema } from "nestjs-joi";
 import * as Joi from "joi";
 import { ApiProperty } from "@nestjs/swagger";
-import { joiMessages } from "src/utils/joi/joi.messages";
+import { joiMessages } from "../../utils/joi/joi.messages";
 
 export class UpdateUserDto {
 	username?: string;
