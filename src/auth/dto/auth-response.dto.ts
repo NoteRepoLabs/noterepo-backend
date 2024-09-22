@@ -13,6 +13,8 @@ export class AuthResponseDto {
 	@Exclude()
 	password: string;
 
+	bio: string;
+
 	isVerified: boolean;
 
 	role: Role;

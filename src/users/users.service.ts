@@ -56,12 +56,32 @@ export class UsersService {
 		return user;
 	}
 
+	async findUserProfile(userId: string) {
+		return await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: {
+				username: true,
+				bio: true,
+				Repo: { where: { isPublic: true } },
+			},
+		});
+	}
+
 	async updateUser(userId: string, updateUserDto: UpdateUserDto) {
 		return await this.prisma.user.update({
 			where: {
 				id: userId,
 			},
 			data: updateUserDto,
+		});
+	}
+
+	async updateUserBio(userId: string, bio: string) {
+		return await this.prisma.user.update({
+			where: {
+				id: userId,
+			},
+			data: { bio },
 		});
 	}
 
