@@ -2,25 +2,25 @@
 import "./sentry/instrument";
 
 //Dependencies
-import { NestFactory, Reflector } from "@nestjs/core";
-import {
-	FastifyAdapter,
-	NestFastifyApplication,
-} from "@nestjs/platform-fastify";
+import fastifyCookie from "@fastify/cookie";
 import {
 	ClassSerializerInterceptor,
 	INestApplication,
 	Logger,
 	VersioningType,
 } from "@nestjs/common";
-import fastifyCookie from "@fastify/cookie";
+import { NestFactory, Reflector } from "@nestjs/core";
+import {
+	FastifyAdapter,
+	NestFastifyApplication,
+} from "@nestjs/platform-fastify";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 //Imports
-import { AppModule } from "./app.module";
-import { logger } from "./utils/requestLogger/request.logger";
 import fastifyHelmet from "@fastify/helmet";
 import multiPart from "@fastify/multipart";
+import { AppModule } from "./app.module";
+import { logger } from "./utils/requestLogger/request.logger";
 import { CustomExceptionFilter } from "./utils/response/httpException.filter";
 
 async function bootstrap() {
