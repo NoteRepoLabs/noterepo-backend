@@ -5,13 +5,11 @@ import {
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 import { FastifyRequest } from "fastify";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CloudinaryService } from "../../storage/cloudinary/cloudinary.service";
 import { UsersService } from "../../users/users.service";
 import { RepoService } from "../repo.service";
-import { FileCreatedEvent } from "./events/file-events";
 
 //File types supported
 const filetypes = [
@@ -28,6 +26,8 @@ const filetypes = [
 //File field name supported
 const fieldNames = ["file"];
 
+//private readonly eventEmitter: EventEmitter2,
+
 @Injectable()
 export class FilesService {
 	constructor(
@@ -35,7 +35,6 @@ export class FilesService {
 		private readonly repoService: RepoService,
 		private readonly prisma: PrismaService,
 		private readonly cloudinary: CloudinaryService,
-		private readonly eventEmitter: EventEmitter2,
 	) {}
 	async uploadFile(req: FastifyRequest, userId: string, repoId: string) {
 		const file = await req.file();
@@ -116,7 +115,7 @@ export class FilesService {
 			},
 		});
 
-		const fileCreatedEvent = new FileCreatedEvent();
+		/*const fileCreatedEvent = new FileCreatedEvent();
 		fileCreatedEvent.id = savedFile.id;
 		fileCreatedEvent.name = savedFile.name;
 		fileCreatedEvent.publicName = savedFile.publicName;
@@ -126,7 +125,7 @@ export class FilesService {
 		fileCreatedEvent.userId = savedFile.userId;
 
 		//Add File To Search Engine
-		await this.eventEmitter.emitAsync("searchFile.created", [fileCreatedEvent]);
+		await this.eventEmitter.emitAsync("searchFile.created", [fileCreatedEvent]);*/
 
 		return savedFile;
 	}
@@ -156,7 +155,7 @@ export class FilesService {
 		});
 
 		//Delete file from search engine
-		await this.eventEmitter.emitAsync("searchFile.deleted", [fileId]);
+		//await this.eventEmitter.emitAsync("searchFile.deleted", [fileId]);
 
 		return;
 	}
@@ -198,7 +197,7 @@ export class FilesService {
 		});
 
 		//Delete file from search engine
-		await this.eventEmitter.emitAsync("searchFile.deleted", fileIds);
+		//await this.eventEmitter.emitAsync("searchFile.deleted", fileIds);
 
 		return;
 	}
