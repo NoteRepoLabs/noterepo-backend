@@ -238,12 +238,17 @@ export class RepoService {
 
 		//If user has files
 		if (repo.files.length > 0) {
-			//For storing file names
-			const fileNames: string[] = [];
+			//Get all raw files name
+			const fileNamesRaw: string[] = repo.files
+				.filter((file) => file.resourceType == "raw")
+				.map((file) => file.publicName);
+
+			//Get all image files name
+			const fileNamesImage: string[] = repo.files
+				.filter((file) => file.resourceType == "image")
+				.map((file) => file.publicName);
 
 			const fileIds: string[] = [];
-
-			repo.files.forEach((file) => fileNames.push(file.publicName));
 
 			repo.files.forEach((file) => fileIds.push(file.id));
 
@@ -269,8 +274,11 @@ export class RepoService {
 			//Delete Files from Search Engine
 			this.eventEmitter.emitAsync("searchFile.deleted", [fileIds]);
 
+			//Delete all raw files from cloudinary.
+			await this.cloudinary.deleteFilesFromStorage(fileNamesRaw, "raw");
+
 			//Delete all files from cloudinary, to be implemented
-			await this.cloudinary.deleteFilesFromStorage(fileNames);
+			await this.cloudinary.deleteFilesFromStorage(fileNamesImage, "image");
 		} else {
 			//Delete only the repo
 			await this.prisma.user.update({

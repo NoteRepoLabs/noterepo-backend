@@ -34,27 +34,62 @@ export class CloudinaryService {
 	}
 
 	//Delete a file from the user folder
-	async deleteFileFromStorage(fileName: string) {
-		return await v2.uploader.destroy(fileName, (error, result) => {
-			if (error) {
-				console.log(error);
-				return error;
-			}
+	async deleteFileFromStorage(
+		public_id: string,
+		resource_type: "raw" | "image",
+	) {
+		return await v2.uploader.destroy(
+			public_id,
+			{ resource_type: resource_type },
+			(error, result) => {
+				if (error) {
+					console.log(error);
+					return error;
+				}
 
-			return result;
-		});
+				console.log(result);
+
+				return result;
+			},
+		);
 	}
 
 	//Delete multiple files from the user folder
-	async deleteFilesFromStorage(public_ids: string[]) {
-		return await v2.api.delete_resources(public_ids, (error, result) => {
-			if (error) {
-				console.log(error);
-				return error;
-			}
+	async deleteFilesFromStorage(
+		public_ids: string[],
+		resource_type: "raw" | "image",
+	) {
+		return await v2.api.delete_resources(
+			public_ids,
+			{ resource_type },
+			(error, result) => {
+				if (error) {
+					console.log(error);
+					return error;
+				}
 
-			return result;
-		});
+				return result;
+			},
+		);
+	}
+
+	//Delete multiple files from the user folder
+	async deleteAllUserFilesFromStorage(
+		folderName: string,
+		resource_type: "raw" | "image",
+	) {
+		return await v2.api.delete_resources_by_prefix(
+			`Users/${folderName}/`,
+			{ resource_type: resource_type },
+			(error, result) => {
+				if (error) {
+					console.log(error);
+					return error;
+				}
+
+				return result;
+			},
+		);
 	}
 
 	//Delete User's Empty Folder

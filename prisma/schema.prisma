@@ -65,6 +65,7 @@ model File {
   id         String   @id @default(uuid())
   name       String
   publicName String
+  resourceType String?
   urlLink    String
   createdAt  DateTime @default(now())
   repo       Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
