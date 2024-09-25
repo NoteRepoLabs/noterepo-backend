@@ -5,13 +5,13 @@ import {
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { FastifyRequest } from "fastify";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CloudinaryService } from "../../storage/cloudinary/cloudinary.service";
-import { FileCreatedEvent } from "./events/file-events";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 import { UsersService } from "../../users/users.service";
 import { RepoService } from "../repo.service";
+import { FileCreatedEvent } from "./events/file-events";
 
 //File types supported
 const filetypes = [
@@ -108,6 +108,7 @@ export class FilesService {
 		const savedFile = await this.prisma.file.create({
 			data: {
 				name: originalFileName,
+				resourceType: uploadFileResult.resource_type,
 				publicName: uploadFileResult.public_id,
 				urlLink: fileUrl,
 				repo: { connect: { id: repoId } },
@@ -132,86 +133,72 @@ export class FilesService {
 
 	//Delete a file from repo
 	async deleteAFile(userId: string, repoId: string, fileId: string) {
-		const user = await this.userService.findUserById(userId);
+		const file = await this.prisma.file.findFirst({
+			where: { repoId: repoId, id: fileId, userId: userId },
+		});
 
-		if (!user) {
-			throw new NotFoundException("User not found");
-		}
-
-		const repo = await this.repoService.findRepoByIdAndUserId(
-			repoId,
-			userId,
-			true,
-		);
-
-		if (!repo) {
-			throw new NotFoundException("Repo not found");
-		}
-
-		const fileExists = repo.files.find((file) => file.id === fileId);
-
-		if (!fileExists) {
+		if (!file) {
 			throw new NotFoundException("File not found");
 		}
 
-		await this.prisma.repo.update({
-			where: { id: repoId },
-			data: { files: { delete: { id: fileId } } },
+		await this.prisma.$transaction(async (tx) => {
+			// Delete from database
+			await tx.repo.update({
+				where: { id: repoId },
+				data: { files: { delete: { id: fileId, userId, repoId } } },
+			});
+
+			/// Delete file from cloudinary
+			await this.cloudinary.deleteFileFromStorage(
+				file.publicName,
+				file.resourceType as "raw" | "image",
+			);
 		});
 
 		//Delete file from search engine
 		await this.eventEmitter.emitAsync("searchFile.deleted", [fileId]);
-
-		//Delete a file from storage bucket
-		await this.cloudinary.deleteFileFromStorage(fileExists.publicName);
 
 		return;
 	}
 
 	//Delete multiple files in a repo
 	async deleteFiles(userId: string, repoId: string, fileIds: string[]) {
-		const user = await this.userService.findUserById(userId);
-
-		if (!user) {
-			throw new NotFoundException("User not found");
-		}
-
-		const repo = await this.prisma.repo.findUnique({
-			where: { id: repoId },
-		});
-
-		if (!repo) {
-			throw new NotFoundException("Repo not found");
-		}
-
 		const files = await this.prisma.file.findMany({
-			where: { id: { in: fileIds } },
+			where: { id: { in: fileIds }, userId, repoId },
+			select: { publicName: true, resourceType: true },
 		});
 
 		if (!files) {
 			throw new NotFoundException("Files not found");
 		}
 
-		const fileNames: string[] = [];
+		// Get raw files names
+		const fileNamesRaw: string[] = files
+			.filter((file) => file.resourceType === "raw")
+			.map((file: any) => file.publicName);
 
-		//Get the names
-		files.forEach((file) => fileNames.push(file.publicName));
+		//Get image file names
+		const fileNamesImage: string[] = files
+			.filter((file) => file.resourceType === "image")
+			.map((file: any) => file.publicName);
 
 		//Disconnect files relations and delete files
-		await this.prisma.$transaction([
-			this.prisma.repo.update({
+		await this.prisma.$transaction(async (tx) => {
+			await tx.repo.update({
 				where: { id: repoId },
 				data: { files: { deleteMany: { id: { in: fileIds } } } },
 				include: { files: true },
-			}),
-			this.prisma.file.deleteMany({ where: { id: { in: fileIds } } }),
-		]);
+			});
+
+			//Delete all user raw files from storage bucket
+			await this.cloudinary.deleteFilesFromStorage(fileNamesRaw, "raw");
+
+			//Delete all user image files from storage bucket
+			await this.cloudinary.deleteFilesFromStorage(fileNamesImage, "image");
+		});
 
 		//Delete file from search engine
 		await this.eventEmitter.emitAsync("searchFile.deleted", fileIds);
-
-		//Delete files from storage bucket
-		await this.cloudinary.deleteFilesFromStorage(fileNames);
 
 		return;
 	}
