@@ -22,6 +22,7 @@ import multiPart from "@fastify/multipart";
 import { AppModule } from "./app.module";
 import { logger } from "./utils/requestLogger/request.logger";
 import { CustomExceptionFilter } from "./utils/response/httpException.filter";
+import { SearchService } from "./search/search.service";
 
 async function bootstrap() {
 	//Fastify Adapter
@@ -86,7 +87,7 @@ async function bootstrap() {
 	});
 
 	//For request file processing
-	await app.register(multiPart, { limits: { fileSize: 83886080 } }); //filesize limit of 80MB
+	await app.register(multiPart, { limits: { fileSize: 10485760 } }); //filesize limit of 80MB
 
 	//For request logging
 	app.use(logger());
@@ -102,6 +103,13 @@ async function bootstrap() {
 			},
 		},
 	});
+
+  //Update search engine in prod
+  if(process.env.NODE_ENV=== "production"){
+    const searchService = new SearchService()
+    await searchService.createIndex()
+    await searchService.updateIndexSettings()
+  }
 
 	const HOST = process.env.NODE_ENV === "development" ? "127.0.0.1" : "0.0.0.0";
 
