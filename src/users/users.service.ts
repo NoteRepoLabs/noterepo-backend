@@ -173,66 +173,49 @@ export class UsersService {
 			throw new NotFoundException("User not found");
 		}
 
-		const resetToken = await this.prisma.resetPassword.findUnique({
+		//Get all user files
+		const files = await this.prisma.file.findMany({
+			select: { publicName: true },
 			where: { userId: id },
 		});
 
-		if (resetToken) {
-			await this.prisma.resetPassword.delete({ where: { userId: id } });
-		}
+		try {
+			//Delete User too
+			await this.prisma.$transaction(async (tx) => {
+				//Delete all repos
+				await tx.user.update({
+					where: { id: id },
+					data: { Repo: { deleteMany: {} } },
+					include: { Repo: true },
+				});
 
-		const verificationToken = await this.prisma.verification.findUnique({
-			where: { userId: id },
-		});
+				//Delete user
+				await tx.user.delete({ where: { id: id } });
 
-		if (verificationToken) {
-			await this.prisma.verification.delete({ where: { userId: id } });
-		}
+				//Delete all user repo and file
+				if (files.length > 0) {
+					// Delete all user raw files
+					await this.cloudinary.deleteAllUserFilesFromStorage(
+						user.username,
+						"raw",
+					);
 
-		const repos = await this.prisma.repo.findMany({ where: { userId: id } });
+					// Delete all user image files
+					await this.cloudinary.deleteAllUserFilesFromStorage(
+						user.username,
+						"image",
+					);
 
-		if (repos.length > 0) {
-			const repoIds: string[] = [];
+					// Delete User folder
+					await this.cloudinary.deleteUserFolderFromStorage(user.username);
 
-			repos.forEach((repo) => repoIds.push(repo.id));
-
-			const files = await this.prisma.file.findMany({
-				where: { repoId: { in: repoIds } },
+					console.log("User files and folder deleted");
+				}
+				return;
 			});
-
-			if (files.length > 0) {
-				const fileNames: string[] = [];
-
-				files.forEach((file) => fileNames.push(file.publicName));
-
-				// Delete user files
-				await this.cloudinary.deleteFilesFromStorage(fileNames);
-
-				// Delete User folder
-				await this.cloudinary.deleteUserFolderFromStorage(user.username);
-
-				console.log("User files and folder deleted");
-			}
+			return;
+		} catch (err) {
+			throw err;
 		}
-
-		await this.prisma.$transaction([
-			this.prisma.user.update({
-				where: { id: id },
-				data: { Repo: { deleteMany: {} } },
-				include: { Repo: true },
-			}),
-			this.prisma.user.delete({ where: { id: id } }),
-		]);
-		return;
-	}
-
-	//Only for prelaunch development purposes and should not be touched.
-	async removeAllUsers() {
-		await this.prisma.$transaction([
-			this.prisma.resetPassword.deleteMany({}),
-			this.prisma.verification.deleteMany({}),
-			this.prisma.user.deleteMany({}),
-		]);
-		return;
 	}
 }
