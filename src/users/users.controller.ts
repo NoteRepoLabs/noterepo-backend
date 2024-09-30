@@ -8,10 +8,12 @@ import {
     ParseUUIDPipe,
     Patch,
     Post,
+    Res,
     UseGuards
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { FastifyReply } from 'fastify';
 import { AuthResponseDto } from '../auth/dto/auth-response.dto';
 import { AuthGuard } from '../guards/auth.guards';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
@@ -86,8 +88,9 @@ export class UsersController {
   async resetPassword(
     @Param('userId', ParseUUIDPipe) id: string,
     @Body() body: ResetPasswordDto,
+    @Res() res: FastifyReply
   ) {
-    const response = await this.usersService.resetPassword(id, body);
+    const response = await this.usersService.resetPassword(id, body,res);
 
     return response;
   }

@@ -14,6 +14,7 @@ import { v4 as uuid } from "uuid";
 import { CloudinaryService } from "../storage/cloudinary/cloudinary.service";
 import { VerificationTokenDto } from "./dto/verification.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 @Injectable()
 export class UsersService {
@@ -133,6 +134,7 @@ export class UsersService {
 	async resetPassword(
 		token: string,
 		{ password, confirmPassword }: ResetPasswordDto,
+		res: FastifyReply,
 	) {
 		const resetPassword = await this.prisma.resetPassword.findUnique({
 			where: {
@@ -142,7 +144,7 @@ export class UsersService {
 
 		//If no reset password link
 		if (!resetPassword) {
-			throw new NotFoundException("Can't reset password, link expired");
+			res.redirect(process.env.INVALID_LINK_PAGE, 302);
 		}
 
 		if (password !== confirmPassword) {
