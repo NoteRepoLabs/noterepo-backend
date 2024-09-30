@@ -1,26 +1,26 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  UsePipes,
-  Res,
-  Param,
-  ParseUUIDPipe,
-  UseGuards,
-  HttpCode,
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    Param,
+    ParseUUIDPipe,
+    Post,
+    Res,
+    UseGuards,
+    UsePipes,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { SignUpDto, signUpSchema } from './dto/sign-up.dto';
-import { AuthValidationPipe } from '../utils/pipes/validation.pipe';
-import { SignInDto, signInSchema } from './dto/sign-in.dto';
-import { FastifyReply } from 'fastify';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { plainToInstance } from 'class-transformer';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SetUsernameDto } from './dto/set-username.dto';
-import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
+import { plainToInstance } from 'class-transformer';
+import { FastifyReply } from 'fastify';
 import { RefreshAuthGuard } from '../guards/refreshGuard.guards';
+import { AuthValidationPipe } from '../utils/pipes/validation.pipe';
+import { AuthService } from './auth.service';
+import { AuthResponseDto } from './dto/auth-response.dto';
+import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
+import { SetUsernameDto } from './dto/set-username.dto';
+import { SignInDto, signInSchema } from './dto/sign-in.dto';
+import { SignUpDto, signUpSchema } from './dto/sign-up.dto';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' }) // Auth version 1 controller
