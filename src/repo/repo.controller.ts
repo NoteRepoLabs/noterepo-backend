@@ -8,13 +8,14 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RepoService } from './repo.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
 import { plainToInstance } from 'class-transformer';
 import { RepoResponseDto, ReposResponseDto } from './dto/repo-response.dto';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../guards/auth.guards';
 import {
   bookmarkRepoIdsResponseDto,
@@ -22,6 +23,8 @@ import {
 } from './dto/bookmark-response.dto';
 import { Throttle, seconds } from '@nestjs/throttler';
 import {Public} from '../guards/auth-public.decorator'
+import { QueryValidationPipe } from 'src/utils/pipes/queryValidation.pipe';
+import { GetPublicReposQueryDto, getPublicReposQuerySchema } from './dto/get-repo-query.dto';
 
 @ApiTags('Repository')
 @ApiBearerAuth("access-token")
@@ -49,18 +52,37 @@ export class RepoController {
     return plainToInstance(RepoResponseDto, response);
   }
 
-  @ApiOperation({ summary: 'Fetch all repositories' })
+  @ApiOperation({ summary: 'Fetch all public repositories' })
   @ApiResponse({
     status: 200,
-    description: 'Fetches All Repos',
-    type: RepoResponseDto,
-    isArray: true,
+    description: 'Fetches all public repositories based on provided query parameters',
+  })
+  @ApiQuery({
+    name: 'next_cursor',
+    required: false,
+    description: 'Cursor for fetching the next set of results (base64 encoded)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'previous_cursor',
+    required: false,
+    description: 'Cursor for fetching the previous set of results (base64 encoded)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Maximum number of repositories to return per page (default is 10, maximum is 15)',
+    type: Number,
+    example: 10,
   })
   @Get('repo')
-  async getAllRepo(): Promise<RepoResponseDto[]> {
-    const response = await this.repoService.getAllRepos();
+  async getAllRepo(
+    @Query(new QueryValidationPipe(getPublicReposQuerySchema)) query: GetPublicReposQueryDto,
+  ) {
+    const response = await this.repoService.getAllPublicRepos(query.next_cursor, query.previous_cursor, query.limit);
 
-    return plainToInstance(RepoResponseDto, response);
+    return response;
   }
 
   @ApiOperation({ summary: 'Fetch repositories of a specific user' })
