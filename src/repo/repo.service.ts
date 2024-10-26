@@ -6,12 +6,12 @@ import {
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { CreateRepoDto } from "./dto/create-repo.dto";
-import { CloudinaryService } from "../storage/cloudinary/cloudinary.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { RepoCreatedEvent } from "./events/repo-events";
+import { PrismaService } from "../prisma/prisma.service";
+import { CloudinaryService } from "../storage/cloudinary/cloudinary.service";
 import { UsersService } from "../users/users.service";
+import { CreateRepoDto } from "./dto/create-repo.dto";
+import { RepoCreatedEvent } from "./events/repo-events";
 
 @Injectable()
 export class RepoService {
@@ -104,6 +104,56 @@ export class RepoService {
 		}
 
 		return repo;
+	}
+
+	async getAllPublicRepos(
+		nextCursor: string = "",
+		previousCursor: string = "",
+		limit: number = 10,
+	) {
+		const maxLimit = 15;
+
+		// Add one more for cursor
+		const repoLimit = Math.min(maxLimit + 1, limit * 1 + 1);
+
+		// Decode cursor based on value passed
+		const decodedCursor =
+			Buffer.from(nextCursor || previousCursor, "base64").toString("utf-8") ||
+			null;
+
+		const cursor =
+			nextCursor || previousCursor
+				? {
+						createdAt: decodedCursor,
+					}
+				: undefined;
+
+		const repos = await this.prisma.repo.findMany({
+			where: { isPublic: true },
+			cursor,
+			take: previousCursor ? -repoLimit : repoLimit, // if a previousCursor is provided take backwards
+			orderBy: { createdAt: "asc" },
+		});
+
+		const cursorIdentifier =
+			repos.length < repoLimit
+				? ""
+				: new Date(repos[repoLimit - 1].createdAt).toISOString();
+
+		// Encode the next cursor
+		const next_cursor = Buffer.from(cursorIdentifier).toString("base64");
+
+		repos.pop(); // remove the last item used as cursor;
+
+		return {
+			results: repos.length,
+			data: repos,
+			pagination: {
+				next_cursor,
+				previous_cursor: nextCursor,
+				perPage: repoLimit - 1,
+			},
+		};
 	}
 
 	async getAllUserRepos(userId: string) {
