@@ -23,7 +23,7 @@ import {
 } from './dto/bookmark-response.dto';
 import { Throttle, seconds } from '@nestjs/throttler';
 import {Public} from '../guards/auth-public.decorator'
-import { QueryValidationPipe } from 'src/utils/pipes/queryValidation.pipe';
+import { QueryValidationPipe } from '../utils/pipes/queryValidation.pipe';
 import { GetPublicReposQueryDto, getPublicReposQuerySchema } from './dto/get-repo-query.dto';
 
 @ApiTags('Repository')
